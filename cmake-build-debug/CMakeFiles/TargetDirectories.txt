@@ -1,0 +1,2 @@
+C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/rebuild_cache.dir
