@@ -1,1 +1,4 @@
-CMakeLists.txt not found in C:\Users\orenr\CLionProjects\IC_WC_HW3 Select CMakeLists.txt file...
+/home/student/downloads/clion-2019.2.5/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/student/CLionProjects/IC_WC_HW3
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/student/CLionProjects/IC_WC_HW3/cmake-build-debug

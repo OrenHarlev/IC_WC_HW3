@@ -2,9 +2,10 @@
 #ifndef FW_PACKET_PARSER_H
 #define FW_PACKET_PARSER_H
 
-#include <linux/netfilter.h>
 #include <linux/skbuff.h>
+#include <linux/netfilter.h>
 #include <linux/if.h>
+#include "fw.h"
 
 typedef struct sk_buff RawPacket;
 
@@ -19,6 +20,6 @@ typedef struct {
     ack_t	ack; 				// values from: ack_t
 } packet_t;
 
-int ParsePacket(RawPacket rawPacket, packet_t *parsedPacketPtr, const struct nf_hook_state *state);
+int ParsePacket(RawPacket rawPacket, packet_t *parsedPacket, struct nf_hook_state *state);
 
 #endif

@@ -1,10 +1,17 @@
 #ifndef FWLOGER_H
 #define FWLOGER_H
 
-void LogAction();
+#include "fw.h"
 
-void ReadLogs();
+typedef struct
+{
+    log_row_t logRow;
 
-void ResetLogs();
+} LogNode;
+int LogAction(log_row_t* logRow);
+
+int ReadLogs(char* buff);
+
+int ResetLogs();
 
 #endif
