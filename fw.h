@@ -98,5 +98,4 @@ typedef struct {
     unsigned int   	count;        	// counts this line's hits
 } log_row_t;
 
-
 #endif // _FW_H_

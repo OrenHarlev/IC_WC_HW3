@@ -1,19 +1,50 @@
-
+#include <linux/kernel.h>
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
-#include "FWPacketMatcher.h"
-#include "fw.h"
 
-int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, RuleManager ruleManager, log_row_t *actionLog)
+#include "fw.h"
+#include "FWPacketMatcher.h"
+#include "FWRuleManager.h"
+#include "FWPacketParser.h"
+
+
+int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, RuleManager ruleManager, Logger logger)
 {
     packet_t packet;
-    if (ParsePacket(rawPacket, &packet, state) != 0)
+    bool isXmas;
+    bool isLoopBack;
+
+    if (ParsePacket(rawPacket, state, &packet, &isLoopBack, &isXmas) != 0)
     {
-        // todo error
-        return -1;
+        return NF_DROP;
     }
 
-    // todo handle spacial cases
+    if (isLoopBack)
+    {
+        return NF_ACCEPT;
+    }
 
-    return MatchPacket(packet, ruleManager, actionLog);
+    log_row_t logRow;
+    UpdateLogFromPacket(packet, &logRow);
+    if (isXmas)
+    {
+        logRow.reason = REASON_XMAS_PACKET;
+        logRow.action = NF_DROP;
+        LogAction(logRow, logger);
+        return logRow.action;
+    }
+
+    int action = MatchPacket(packet, ruleManager, &logRow);
+    if (action != NO_MATCHING_RULE)
+    {
+        LogAction(logRow, logger);
+        return action;
+    };
+
+    // accept by default
+    logRow.reason = REASON_NO_MATCHING_RULE;
+    logRow.action = NF_DROP;
+    LogAction(logRow, logger);
+
+    return logRow.action;
 }

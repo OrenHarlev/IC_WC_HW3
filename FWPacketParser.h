@@ -2,6 +2,7 @@
 #ifndef FW_PACKET_PARSER_H
 #define FW_PACKET_PARSER_H
 
+#include <linux/kernel.h>
 #include <linux/skbuff.h>
 #include <linux/netfilter.h>
 #include <linux/if.h>
@@ -18,6 +19,6 @@ typedef struct {
     ack_t	ack; 				// values from: ack_t
 } packet_t;
 
-int ParsePacket(sk_buff *rawPacket, packet_t *parsedPacket, struct nf_hook_state *state);
+int ParsePacket(sk_buff *rawPacket, struct nf_hook_state *state, packet_t *parsedPacket, bool *isLoopBack, bool *isXmas);
 
 #endif

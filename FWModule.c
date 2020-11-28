@@ -82,10 +82,7 @@ static struct file_operations fops =
 
 static unsigned int FWHook(void *priv, struct sk_buff *skb, const struct nf_hook_state *state)
 {
-    log_row_t actionLog;
-    int action = MatchRawPacket(skb, state, ruleManager, &actionLog);
-    LogAction(actionLog, logger);
-    return action;
+    return MatchRawPacket(skb, state, ruleManager, logger);
 }
 
 //------------------------sysfs api--------------------------------
