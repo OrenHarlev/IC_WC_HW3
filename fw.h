@@ -43,8 +43,11 @@ typedef enum {
 // auxiliary values, for your convenience
 #define IP_VERSION		(4)
 #define PORT_ANY		(0)
+#define IP_ANY		    (0)
 #define PORT_ABOVE_1023	(1023)
 #define MAX_RULES		(50)
+#define MAX_RULE_NAME   (20)
+#define RULE_ARGS       (11)
 
 // device minor numbers, for your convenience
 typedef enum {
@@ -66,7 +69,7 @@ typedef enum {
 
 // rule base
 typedef struct {
-    char rule_name[20];			// names will be no longer than 20 chars
+    char rule_name[MAX_RULE_NAME];			// names will be no longer than 20 chars
     direction_t direction;
     __be32	src_ip;
     __be32	src_prefix_mask; 	// e.g., 255.255.255.0 as int in the local endianness

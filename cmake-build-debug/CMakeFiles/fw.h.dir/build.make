@@ -58,23 +58,23 @@ include CMakeFiles\fw.h.dir\progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles\fw.h.dir\flags.make
 
-CMakeFiles\fw.h.dir\FWLoger.c.obj: CMakeFiles\fw.h.dir\flags.make
-CMakeFiles\fw.h.dir\FWLoger.c.obj: ..\FWLoger.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/fw.h.dir/FWLoger.c.obj"
+CMakeFiles\fw.h.dir\FWLogger.c.obj: CMakeFiles\fw.h.dir\flags.make
+CMakeFiles\fw.h.dir\FWLogger.c.obj: ..\FWLogger.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/fw.h.dir/FWLogger.c.obj"
 	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe @<<
- /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoCMakeFiles\fw.h.dir\FWLoger.c.obj /FdCMakeFiles\fw.h.dir\ /FS -c C:\Users\orenr\CLionProjects\IC_WC_HW3\FWLoger.c
+ /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoCMakeFiles\fw.h.dir\FWLogger.c.obj /FdCMakeFiles\fw.h.dir\ /FS -c C:\Users\orenr\CLionProjects\IC_WC_HW3\FWLogger.c
 <<
 
-CMakeFiles\fw.h.dir\FWLoger.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/fw.h.dir/FWLoger.c.i"
-	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe > CMakeFiles\fw.h.dir\FWLoger.c.i @<<
- /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E C:\Users\orenr\CLionProjects\IC_WC_HW3\FWLoger.c
+CMakeFiles\fw.h.dir\FWLogger.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/fw.h.dir/FWLogger.c.i"
+	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe > CMakeFiles\fw.h.dir\FWLogger.c.i @<<
+ /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E C:\Users\orenr\CLionProjects\IC_WC_HW3\FWLogger.c
 <<
 
-CMakeFiles\fw.h.dir\FWLoger.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/fw.h.dir/FWLoger.c.s"
+CMakeFiles\fw.h.dir\FWLogger.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/fw.h.dir/FWLogger.c.s"
 	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe @<<
- /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoNUL /FAs /FaCMakeFiles\fw.h.dir\FWLoger.c.s /c C:\Users\orenr\CLionProjects\IC_WC_HW3\FWLoger.c
+ /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoNUL /FAs /FaCMakeFiles\fw.h.dir\FWLogger.c.s /c C:\Users\orenr\CLionProjects\IC_WC_HW3\FWLogger.c
 <<
 
 CMakeFiles\fw.h.dir\FWModule.c.obj: CMakeFiles\fw.h.dir\flags.make
@@ -96,23 +96,23 @@ CMakeFiles\fw.h.dir\FWModule.c.s: cmake_force
  /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoNUL /FAs /FaCMakeFiles\fw.h.dir\FWModule.c.s /c C:\Users\orenr\CLionProjects\IC_WC_HW3\FWModule.c
 <<
 
-CMakeFiles\fw.h.dir\FWNetworkFilter.c.obj: CMakeFiles\fw.h.dir\flags.make
-CMakeFiles\fw.h.dir\FWNetworkFilter.c.obj: ..\FWNetworkFilter.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/fw.h.dir/FWNetworkFilter.c.obj"
+CMakeFiles\fw.h.dir\FWPacketMatcher.c.obj: CMakeFiles\fw.h.dir\flags.make
+CMakeFiles\fw.h.dir\FWPacketMatcher.c.obj: ..\FWPacketMatcher.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/fw.h.dir/FWPacketMatcher.c.obj"
 	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe @<<
- /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoCMakeFiles\fw.h.dir\FWNetworkFilter.c.obj /FdCMakeFiles\fw.h.dir\ /FS -c C:\Users\orenr\CLionProjects\IC_WC_HW3\FWNetworkFilter.c
+ /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoCMakeFiles\fw.h.dir\FWPacketMatcher.c.obj /FdCMakeFiles\fw.h.dir\ /FS -c C:\Users\orenr\CLionProjects\IC_WC_HW3\FWPacketMatcher.c
 <<
 
-CMakeFiles\fw.h.dir\FWNetworkFilter.c.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/fw.h.dir/FWNetworkFilter.c.i"
-	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe > CMakeFiles\fw.h.dir\FWNetworkFilter.c.i @<<
- /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E C:\Users\orenr\CLionProjects\IC_WC_HW3\FWNetworkFilter.c
+CMakeFiles\fw.h.dir\FWPacketMatcher.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/fw.h.dir/FWPacketMatcher.c.i"
+	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe > CMakeFiles\fw.h.dir\FWPacketMatcher.c.i @<<
+ /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E C:\Users\orenr\CLionProjects\IC_WC_HW3\FWPacketMatcher.c
 <<
 
-CMakeFiles\fw.h.dir\FWNetworkFilter.c.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/fw.h.dir/FWNetworkFilter.c.s"
+CMakeFiles\fw.h.dir\FWPacketMatcher.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/fw.h.dir/FWPacketMatcher.c.s"
 	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe @<<
- /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoNUL /FAs /FaCMakeFiles\fw.h.dir\FWNetworkFilter.c.s /c C:\Users\orenr\CLionProjects\IC_WC_HW3\FWNetworkFilter.c
+ /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoNUL /FAs /FaCMakeFiles\fw.h.dir\FWPacketMatcher.c.s /c C:\Users\orenr\CLionProjects\IC_WC_HW3\FWPacketMatcher.c
 <<
 
 CMakeFiles\fw.h.dir\FWPacketParser.c.obj: CMakeFiles\fw.h.dir\flags.make
@@ -155,18 +155,18 @@ CMakeFiles\fw.h.dir\FWRuleManager.c.s: cmake_force
 
 # Object files for target fw.h
 fw_h_OBJECTS = \
-"CMakeFiles\fw.h.dir\FWLoger.c.obj" \
+"CMakeFiles\fw.h.dir\FWLogger.c.obj" \
 "CMakeFiles\fw.h.dir\FWModule.c.obj" \
-"CMakeFiles\fw.h.dir\FWNetworkFilter.c.obj" \
+"CMakeFiles\fw.h.dir\FWPacketMatcher.c.obj" \
 "CMakeFiles\fw.h.dir\FWPacketParser.c.obj" \
 "CMakeFiles\fw.h.dir\FWRuleManager.c.obj"
 
 # External object files for target fw.h
 fw_h_EXTERNAL_OBJECTS =
 
-fw.h.exe: CMakeFiles\fw.h.dir\FWLoger.c.obj
+fw.h.exe: CMakeFiles\fw.h.dir\FWLogger.c.obj
 fw.h.exe: CMakeFiles\fw.h.dir\FWModule.c.obj
-fw.h.exe: CMakeFiles\fw.h.dir\FWNetworkFilter.c.obj
+fw.h.exe: CMakeFiles\fw.h.dir\FWPacketMatcher.c.obj
 fw.h.exe: CMakeFiles\fw.h.dir\FWPacketParser.c.obj
 fw.h.exe: CMakeFiles\fw.h.dir\FWRuleManager.c.obj
 fw.h.exe: CMakeFiles\fw.h.dir\build.make

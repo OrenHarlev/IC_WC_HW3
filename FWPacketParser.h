@@ -18,6 +18,6 @@ typedef struct {
     ack_t	ack; 				// values from: ack_t
 } packet_t;
 
-int ParsePacket(sk_buff rawPacket, packet_t *parsedPacket, struct nf_hook_state *state);
+int ParsePacket(sk_buff *rawPacket, packet_t *parsedPacket, struct nf_hook_state *state);
 
 #endif

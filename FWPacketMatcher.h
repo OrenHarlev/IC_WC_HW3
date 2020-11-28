@@ -7,6 +7,6 @@
 #include "FWPacketParser.h"
 #include "FWRuleManager.h"
 
-int MatchRawPacket(struct sk_buff *rowPacket, const struct nf_hook_state *state, RuleManager ruleManager, log_row_t *actionLog);
+int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, RuleManager ruleManager, log_row_t *actionLog);
 
 #endif

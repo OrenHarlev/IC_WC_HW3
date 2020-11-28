@@ -82,19 +82,19 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWLoger.c">
+		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWLogger.c">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWLoger.h">
+		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWLogger.h">
 			<Option target="fw.h"/>
 		</Unit>
 		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWModule.c">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWNetworkFilter.c">
+		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketMatcher.c">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWNetworkFilter.h">
+		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketMatcher.h">
 			<Option target="fw.h"/>
 		</Unit>
 		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketParser.c">

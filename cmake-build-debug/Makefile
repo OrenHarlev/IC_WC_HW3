@@ -124,32 +124,32 @@ fw.h\fast:
 	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\build
 .PHONY : fw.h\fast
 
-FWLoger.obj: FWLoger.c.obj
+FWLogger.obj: FWLogger.c.obj
 
-.PHONY : FWLoger.obj
+.PHONY : FWLogger.obj
 
 # target to build an object file
-FWLoger.c.obj:
-	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWLoger.c.obj
-.PHONY : FWLoger.c.obj
+FWLogger.c.obj:
+	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWLogger.c.obj
+.PHONY : FWLogger.c.obj
 
-FWLoger.i: FWLoger.c.i
+FWLogger.i: FWLogger.c.i
 
-.PHONY : FWLoger.i
+.PHONY : FWLogger.i
 
 # target to preprocess a source file
-FWLoger.c.i:
-	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWLoger.c.i
-.PHONY : FWLoger.c.i
+FWLogger.c.i:
+	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWLogger.c.i
+.PHONY : FWLogger.c.i
 
-FWLoger.s: FWLoger.c.s
+FWLogger.s: FWLogger.c.s
 
-.PHONY : FWLoger.s
+.PHONY : FWLogger.s
 
 # target to generate assembly for a file
-FWLoger.c.s:
-	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWLoger.c.s
-.PHONY : FWLoger.c.s
+FWLogger.c.s:
+	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWLogger.c.s
+.PHONY : FWLogger.c.s
 
 FWModule.obj: FWModule.c.obj
 
@@ -178,32 +178,32 @@ FWModule.c.s:
 	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWModule.c.s
 .PHONY : FWModule.c.s
 
-FWNetworkFilter.obj: FWNetworkFilter.c.obj
+FWPacketMatcher.obj: FWPacketMatcher.c.obj
 
-.PHONY : FWNetworkFilter.obj
+.PHONY : FWPacketMatcher.obj
 
 # target to build an object file
-FWNetworkFilter.c.obj:
-	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWNetworkFilter.c.obj
-.PHONY : FWNetworkFilter.c.obj
+FWPacketMatcher.c.obj:
+	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWPacketMatcher.c.obj
+.PHONY : FWPacketMatcher.c.obj
 
-FWNetworkFilter.i: FWNetworkFilter.c.i
+FWPacketMatcher.i: FWPacketMatcher.c.i
 
-.PHONY : FWNetworkFilter.i
+.PHONY : FWPacketMatcher.i
 
 # target to preprocess a source file
-FWNetworkFilter.c.i:
-	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWNetworkFilter.c.i
-.PHONY : FWNetworkFilter.c.i
+FWPacketMatcher.c.i:
+	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWPacketMatcher.c.i
+.PHONY : FWPacketMatcher.c.i
 
-FWNetworkFilter.s: FWNetworkFilter.c.s
+FWPacketMatcher.s: FWPacketMatcher.c.s
 
-.PHONY : FWNetworkFilter.s
+.PHONY : FWPacketMatcher.s
 
 # target to generate assembly for a file
-FWNetworkFilter.c.s:
-	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWNetworkFilter.c.s
-.PHONY : FWNetworkFilter.c.s
+FWPacketMatcher.c.s:
+	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWPacketMatcher.c.s
+.PHONY : FWPacketMatcher.c.s
 
 FWPacketParser.obj: FWPacketParser.c.obj
 
@@ -268,15 +268,15 @@ help:
 	@echo ... fw.h
 	@echo ... edit_cache
 	@echo ... rebuild_cache
-	@echo ... FWLoger.obj
-	@echo ... FWLoger.i
-	@echo ... FWLoger.s
+	@echo ... FWLogger.obj
+	@echo ... FWLogger.i
+	@echo ... FWLogger.s
 	@echo ... FWModule.obj
 	@echo ... FWModule.i
 	@echo ... FWModule.s
-	@echo ... FWNetworkFilter.obj
-	@echo ... FWNetworkFilter.i
-	@echo ... FWNetworkFilter.s
+	@echo ... FWPacketMatcher.obj
+	@echo ... FWPacketMatcher.i
+	@echo ... FWPacketMatcher.s
 	@echo ... FWPacketParser.obj
 	@echo ... FWPacketParser.i
 	@echo ... FWPacketParser.s
