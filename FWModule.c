@@ -51,7 +51,12 @@ ssize_t LogRead(struct file *filp, char *buff, size_t length, loff_t *offp)
 
     ssize_t logLength = ReadLogs(logBuff, length, logger);
 
-    if (logLength <= 0)
+    if (logLength < 0)
+    {
+        return -EFAULT;
+    }
+
+    if (logLength == 0)
     {
         return 0;
     }
@@ -69,11 +74,17 @@ int LogOpen(struct inode *_inode, struct file *_file)
     ResetLogReader(logger);
 }
 
+int LogClose(struct inode *_inode, struct file *_file)
+{
+    ResetLogReader(logger);
+}
+
 static struct file_operations LogReadFops =
 {
     .owner = THIS_MODULE,
     .read = LogRead,
     .open = LogOpen,
+    .release = LogClose,
 };
 
 //------------------------netfilter hooks--------------------------------
@@ -100,8 +111,8 @@ ssize_t LogModify(struct device *dev, struct device_attribute *attr, const char 
     return ResetLogs(logger);
 }
 
-static DEVICE_ATTR(DEVICE_NAME_RULES, S_IWUSR | S_IRUGO, RulesDisplay, RulesModify);
-static DEVICE_ATTR(ATTR_NAME_LOG_RESET, S_IWUSR | S_IRUGO , NULL, LogModify);
+static DEVICE_ATTR(rules, S_IWUSR | S_IRUGO, RulesDisplay, RulesModify);
+static DEVICE_ATTR(reset, S_IWUSR | S_IRUGO , NULL, LogModify);
 
 //==================== MODULE SETUP =============================
 

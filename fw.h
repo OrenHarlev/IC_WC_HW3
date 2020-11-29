@@ -30,7 +30,6 @@ typedef enum {
     REASON_ILLEGAL_VALUE         = -6,
 } reason_t;
 
-
 // auxiliary strings, for your convenience
 #define DEVICE_NAME_RULES			"rules"
 #define DEVICE_NAME_LOG_RESET		"log"
@@ -91,7 +90,7 @@ typedef struct {
 
 // logging
 typedef struct {
-    unsigned long  	timestamp;     	// time of creation/update
+    __s64       	timestamp;     	// time of creation/update
     unsigned char  	protocol;     	// values from: prot_t
     unsigned char  	action;       	// valid values: NF_ACCEPT, NF_DROP
     __be32   		src_ip;		  	// if you use this struct in userspace, change the type to unsigned int

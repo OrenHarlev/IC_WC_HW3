@@ -5,7 +5,7 @@
 #include "fw.h"
 
 
-typedef struct LogRecord *Logger;
+typedef struct LogList *Logger;
 
 Logger CreateLogger();
 

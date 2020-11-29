@@ -197,7 +197,7 @@ ssize_t GetRawRules(RuleManager ruleManager, char* buff)
     for (__u8 i = 0; i < ruleManager->NumberOfRules; i++)
     {
         rule_t curRule = ruleManager->rules[i];
-        offset += scnprintf(buff + offset,
+        offset += snprintf(buff + offset,
                             PAGE_SIZE - offset,
                             "%s %u %u %u %u %u %u %u %u %u %u\n",
                             curRule.rule_name,
