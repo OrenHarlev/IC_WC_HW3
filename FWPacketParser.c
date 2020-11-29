@@ -46,17 +46,20 @@ int ParseDirection(const struct nf_hook_state *state, packet_t *parsedPacket, bo
         return -1;
     }
 
-    if ((strncmp(interface, IN_NET_DEVICE_NAME, IFNAMSIZ) == 0))
+    if (strncmp(interface, IN_NET_DEVICE_NAME, IFNAMSIZ) == 0)
     {
         parsedPacket->direction = DIRECTION_IN;
         return 0;
     }
-    if ((strncmp(interface, OUT_NET_DEVICE_NAME, IFNAMSIZ) == 0))
+
+    if (strncmp(interface, OUT_NET_DEVICE_NAME, IFNAMSIZ) == 0)
     {
         parsedPacket->direction = DIRECTION_OUT;
         return 0;
     }
-    return -1;
+
+    printk(KERN_INFO "FW Unsupported interface.\n");
+    return 0;
 }
 
 bool IsLoopBackIp(__be32 ip)

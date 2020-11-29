@@ -106,12 +106,11 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
     int logRowSize;
 
     struct klist_iter iterator;
-    struct klist_node *listNode;
     klist_iter_init_node(logger->list, &iterator, logger->nextReadNode);
 
-    while(length > LOG_ROW_MAX_PRINT_SIZE && (listNode = klist_next(&iterator)) != NULL)
+    while(length > LOG_ROW_MAX_PRINT_SIZE &&  logger->nextReadNode != NULL)
     {
-        LogRecord *logRecord = container_of(listNode, LogRecord, node);
+        LogRecord *logRecord = container_of(logger->nextReadNode, LogRecord, node);
         log_row_t log = logRecord->log;
 
         logRowSize = snprintf(buff + buffOffset,
@@ -134,14 +133,14 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
 
         buffOffset += logRowSize;
         length -= logRowSize;
+        logger->nextReadNode = klist_next(&iterator);
     }
 
-    logger->nextReadNode = listNode;
     klist_iter_exit(&iterator);
 
     printk(KERN_ERR "finish printing log\n");
 
-    return buffOffset + 1;
+    return buffOffset == 0 ? 0 : buffOffset + 1;
 }
 
 int ResetLogReader(Logger logger)
