@@ -138,8 +138,6 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
 
     klist_iter_exit(&iterator);
 
-    printk(KERN_ERR "finish printing log\n");
-
     return buffOffset == 0 ? 0 : buffOffset + 1;
 }
 

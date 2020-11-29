@@ -168,6 +168,11 @@ ssize_t UpdateRules(char *rawRulesTable, size_t count, RuleManager ruleManager)
     char *rule;
     while (((rule = strsep(&rawRulesTable, "\n")) != NULL))
     {
+        if (strlen(rule) == 0)
+        {
+            continue;
+        }
+
         ruleNumber++;
         if (ruleNumber > MAX_RULES)
         {
@@ -244,7 +249,7 @@ int MatchPacket(packet_t packet, RuleManager ruleManager, log_row_t *logRow)
         rule_t curRule = ruleManager->rules[i];
         if (MatchRule(packet, curRule))
         {
-            logRow->reason = i;
+            logRow->reason = i + 1;
             logRow->action = curRule.action;
             return logRow->action;
         }

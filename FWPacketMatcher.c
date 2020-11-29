@@ -14,7 +14,6 @@ int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state,
     bool isXmas;
     bool isLoopBack;
 
-    printk(KERN_ERR "MatchRawPacket\n");
     if (ParsePacket(rawPacket, state, &packet, &isLoopBack, &isXmas) != 0)
     {
         return NF_DROP;
@@ -42,7 +41,7 @@ int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state,
         return action;
     };
 
-    // accept by default
+    // drop by default
     logRow.reason = REASON_NO_MATCHING_RULE;
     logRow.action = NF_DROP;
     LogAction(logRow, logger);
