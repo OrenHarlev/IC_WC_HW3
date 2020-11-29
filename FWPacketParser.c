@@ -17,6 +17,14 @@ void ParseUDP(struct sk_buff *rawPacket, packet_t *parsedPacket)
     struct udphdr *UDPHeader = udp_hdr(rawPacket);
     parsedPacket->src_port = ntohs(UDPHeader->source);
     parsedPacket->dst_port = ntohs(UDPHeader->dest);
+    parsedPacket->ack = ACK_NO;
+}
+
+void ParseICMP(struct sk_buff *rawPacket, packet_t *parsedPacket)
+{
+    parsedPacket->src_port = PORT_ANY;
+    parsedPacket->dst_port = PORT_ANY;
+    parsedPacket->ack = ACK_NO;
 }
 
 void ParseTCP(struct sk_buff *rawPacket, packet_t *parsedPacket, bool *IsXmas)
@@ -28,25 +36,27 @@ void ParseTCP(struct sk_buff *rawPacket, packet_t *parsedPacket, bool *IsXmas)
     *IsXmas = TCPHeader->fin && TCPHeader->urg && TCPHeader->psh;
 }
 
-void ParseDirection(const struct nf_hook_state *state, packet_t *parsedPacket, bool *isLoopBack)
+int ParseDirection(const struct nf_hook_state *state, packet_t *parsedPacket, bool *isLoopBack)
 {
     char *interface = state->in->name;
 
     if (strncmp(interface, LOOPBACK_NET_DEVICE_NAME, IFNAMSIZ) == 0)
     {
         *isLoopBack = true;
-        return;
+        return -1;
     }
 
     if ((strncmp(interface, IN_NET_DEVICE_NAME, IFNAMSIZ) == 0))
     {
         parsedPacket->direction = DIRECTION_IN;
-        return;
+        return 0;
     }
     if ((strncmp(interface, OUT_NET_DEVICE_NAME, IFNAMSIZ) == 0))
     {
         parsedPacket->direction = DIRECTION_OUT;
+        return 0;
     }
+    return -1;
 }
 
 bool IsLoopBackIp(__be32 ip)
@@ -63,7 +73,12 @@ int ParsePacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, pa
     }
 
     *isLoopBack = false;
-    ParseDirection(state, parsedPacket, isLoopBack);
+    if (ParseDirection(state, parsedPacket, isLoopBack) != 0)
+    {
+        printk(KERN_INFO "FW Unsupported interface.\n");
+        return -1;
+    }
+
     if (*isLoopBack)
     {
         printk(KERN_INFO "Loop back packet.\n");
@@ -93,6 +108,7 @@ int ParsePacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, pa
             ParseUDP(rawPacket, parsedPacket);
             break;
         case PROT_ICMP:
+            ParseICMP(rawPacket, parsedPacket);
             break;
         default:
             printk(KERN_INFO "Unsupported Transport protocol.\n");
