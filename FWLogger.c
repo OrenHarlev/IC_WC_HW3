@@ -88,7 +88,7 @@ int LogAction(log_row_t logRow, Logger logger)
 
     memcpy(&newLogRecord->log, &logRow, sizeof(log_row_t));
     newLogRecord->log.timestamp = ktime_get_seconds();
-    newLogRecord->log.count = 0;
+    newLogRecord->log.count = 1;
 
     klist_add_head(&newLogRecord->node, logger->list);
 
@@ -165,7 +165,7 @@ ssize_t ResetLogs(Logger logger)
 
     while((listNode = klist_next(&iterator)) != NULL)
     {
-        klist_remove(listNode);
+        klist_del(listNode);
         kfree(container_of(listNode, LogRecord, node));
     }
 
