@@ -75,11 +75,10 @@ int LogAction(log_row_t logRow, Logger logger)
         {
             logRecord->log.count++;
             logRecord->log.timestamp = ktime_get_seconds();
-            break;
+            klist_iter_exit(&iterator);
+            return 0;
         }
     }
-
-    klist_iter_exit(&iterator);
 
     LogRecord *newLogRecord = kmalloc(sizeof(LogRecord), GFP_KERNEL);
     if (newLogRecord == NULL)
@@ -88,6 +87,9 @@ int LogAction(log_row_t logRow, Logger logger)
     }
 
     memcpy(&newLogRecord->log, &logRow, sizeof(log_row_t));
+    newLogRecord->log.timestamp = ktime_get_seconds();
+    newLogRecord->log.count = 0;
+
     klist_add_head(&newLogRecord->node, logger->list);
 
     return 0;
@@ -134,7 +136,7 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
         length -= logRowSize;
     }
 
-    logger->nextReadNode = klist_next(&iterator);
+    logger->nextReadNode = listNode;
     klist_iter_exit(&iterator);
 
     printk(KERN_ERR "finish printing log\n");
