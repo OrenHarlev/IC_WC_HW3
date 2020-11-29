@@ -27,16 +27,14 @@ MODULE_AUTHOR("Oren Harlev");
 
 //------------------------netfilter--------------------------------
 
-static struct nf_hook_ops *forward_hook_ops = NULL;
+static struct nf_hook_ops *forwardHookOps = NULL;
 
 //---------------------------sysfs-device---------------------------------
 
-#define SYSFS_CLASS_NAME "FW"
-#define DEVICE_NAME "fw_log"
-
-static int major_number;
-static struct class* sysfs_class = NULL;
-static struct device* sysfs_device = NULL;
+static int major;
+static struct class* sysfsClass = NULL;
+static struct device* sysfsRulesDevice = NULL;
+static struct device* sysfsLogResetDevice = NULL;
 
 //---------------------------logic---------------------------------
 
@@ -66,16 +64,16 @@ ssize_t LogRead(struct file *filp, char *buff, size_t length, loff_t *offp)
     return logLength;
 }
 
-int OpenLog(struct inode *_inode, struct file *_file)
+int LogOpen(struct inode *_inode, struct file *_file)
 {
     ResetLogReader(logger);
 }
 
-static struct file_operations fops =
+static struct file_operations LogReadFops =
 {
     .owner = THIS_MODULE,
     .read = LogRead,
-    .open = OpenLog,
+    .open = LogOpen,
 };
 
 //------------------------netfilter hooks--------------------------------
@@ -102,8 +100,8 @@ ssize_t LogModify(struct device *dev, struct device_attribute *attr, const char 
     return ResetLogs(logger);
 }
 
-static DEVICE_ATTR(RulesAttribute, S_IWUSR | S_IRUGO , RulesDisplay, RulesModify);
-static DEVICE_ATTR(LogAttribute, S_IWUSR | S_IRUGO , NULL, LogModify);
+static DEVICE_ATTR(DEVICE_NAME_RULES, S_IWUSR | S_IRUGO, RulesDisplay, RulesModify);
+static DEVICE_ATTR(ATTR_NAME_LOG_RESET, S_IWUSR | S_IRUGO , NULL, LogModify);
 
 //==================== MODULE SETUP =============================
 
@@ -119,9 +117,8 @@ static int __init init(void)
         return -1;
     }
 
-    forward_hook_ops = (struct nf_hook_ops*)kcalloc(1, sizeof(struct nf_hook_ops), GFP_KERNEL);
-
-    if (forward_hook_ops == NULL)
+    forwardHookOps = (struct nf_hook_ops*)kcalloc(1, sizeof(struct nf_hook_ops), GFP_KERNEL);
+    if (forwardHookOps == NULL)
     {
         FreeLogger(logger);
         FreeRuleManager(ruleManager);
@@ -129,85 +126,101 @@ static int __init init(void)
         return -1;
     }
 
-    forward_hook_ops->hook = (nf_hookfn*)FWHook;
-    forward_hook_ops->hooknum = NF_INET_FORWARD;
-    forward_hook_ops->pf = PF_INET;
-    forward_hook_ops->priority = NF_IP_PRI_FIRST;
+    forwardHookOps->hook = (nf_hookfn*)FWHook;
+    forwardHookOps->hooknum = NF_INET_FORWARD;
+    forwardHookOps->pf = PF_INET;
+    forwardHookOps->priority = NF_IP_PRI_FIRST;
 
-    if (nf_register_net_hook(&init_net, forward_hook_ops) != 0)
+    if (nf_register_net_hook(&init_net, forwardHookOps) != 0)
     {
-        printk(KERN_ERR "Failed to init module: foeward hook_ops init failed.");
+        printk(KERN_ERR "Failed to init module: forward hook_ops init failed.");
+        kfree(forwardHookOps);
         FreeLogger(logger);
         FreeRuleManager(ruleManager);
-        kfree(forward_hook_ops);
         return -1;
     }
 
-    //create char device
-    major_number = register_chrdev(0, DEVICE_NAME, &fops);
-    if (major_number < 0)
+    //create char devices
+    major = register_chrdev(0, DEVICE_NAME_LOG_READ, &LogReadFops);
+    if (major < 0)
     {
         printk(KERN_ERR "Failed to init module: register_chrdev failed.");
+        nf_unregister_net_hook(&init_net, forwardHookOps);
+        kfree(forwardHookOps);
         FreeLogger(logger);
         FreeRuleManager(ruleManager);
-        kfree(forward_hook_ops);
-        nf_unregister_net_hook(&init_net, forward_hook_ops);
         return -1;
     }
 
     //create sysfs class
-    sysfs_class = class_create(THIS_MODULE, SYSFS_CLASS_NAME);
-    if (IS_ERR(sysfs_class))
+    sysfsClass = class_create(THIS_MODULE, CLASS_NAME);
+    if (IS_ERR(sysfsClass))
     {
         printk(KERN_ERR "Failed to init module: class_create failed.");
+        unregister_chrdev(major, DEVICE_NAME_LOG_READ);
+        nf_unregister_net_hook(&init_net, forwardHookOps);
+        kfree(forwardHookOps);
         FreeLogger(logger);
         FreeRuleManager(ruleManager);
-        kfree(forward_hook_ops);
-        nf_unregister_net_hook(&init_net, forward_hook_ops);
-        unregister_chrdev(major_number, DEVICE_NAME);
         return -1;
     }
 
     //create sysfs device
-    sysfs_device = device_create(sysfs_class, NULL, MKDEV(major_number, 0), NULL, SYSFS_CLASS_NAME "_" DEVICE_NAME);
-    if (IS_ERR(sysfs_device))
+    sysfsRulesDevice = device_create(sysfsClass, NULL, MKDEV(major, MINOR_RULES), NULL, DEVICE_NAME_RULES);
+    if (IS_ERR(sysfsRulesDevice))
     {
         printk(KERN_ERR "Failed to init module: device_create failed.");
+        class_destroy(sysfsClass);
+        unregister_chrdev(major, DEVICE_NAME_LOG_READ);
+        nf_unregister_net_hook(&init_net, forwardHookOps);
+        kfree(forwardHookOps);
         FreeLogger(logger);
         FreeRuleManager(ruleManager);
-        kfree(forward_hook_ops);
-        nf_unregister_net_hook(&init_net, forward_hook_ops);
-        unregister_chrdev(major_number, DEVICE_NAME);
-        class_destroy(sysfs_class);
+        return -1;
+    }
+
+    sysfsLogResetDevice = device_create(sysfsClass, NULL, MKDEV(major, MINOR_LOG), NULL, DEVICE_NAME_LOG_RESET);
+    if (IS_ERR(sysfsLogResetDevice))
+    {
+        printk(KERN_ERR "Failed to init module: device_create failed.");
+        device_destroy(sysfsClass, MKDEV(major, MINOR_RULES));
+        class_destroy(sysfsClass);
+        unregister_chrdev(major, DEVICE_NAME_LOG_READ);
+        nf_unregister_net_hook(&init_net, forwardHookOps);
+        kfree(forwardHookOps);
+        FreeLogger(logger);
+        FreeRuleManager(ruleManager);
         return -1;
     }
 
     //create sysfs file attributes
-    if (device_create_file(sysfs_device, (const struct device_attribute *)&dev_attr_RulesAttribute.attr))
+    if (device_create_file(sysfsRulesDevice, (const struct device_attribute *)&dev_attr_rules.attr))
     {
         printk(KERN_ERR "Failed to init module: device_create_file failed.");
+        device_destroy(sysfsClass, MKDEV(major, MINOR_LOG));
+        device_destroy(sysfsClass, MKDEV(major, MINOR_RULES));
+        class_destroy(sysfsClass);
+        unregister_chrdev(major, DEVICE_NAME_LOG_READ);
+        nf_unregister_net_hook(&init_net, forwardHookOps);
+        kfree(forwardHookOps);
         FreeLogger(logger);
         FreeRuleManager(ruleManager);
-        kfree(forward_hook_ops);
-        nf_unregister_net_hook(&init_net, forward_hook_ops);
-        unregister_chrdev(major_number, DEVICE_NAME);
-        class_destroy(sysfs_class);
-        device_destroy(sysfs_class, MKDEV(major_number, 0));
         return -1;
     }
 
     //create sysfs file attributes
-    if (device_create_file(sysfs_device, (const struct device_attribute *)&dev_attr_LogAttribute.attr))
+    if (device_create_file(sysfsLogResetDevice, (const struct device_attribute *)&dev_attr_reset.attr))
     {
         printk(KERN_ERR "Failed to init module: device_create_file failed.");
+        device_remove_file(sysfsRulesDevice, (const struct device_attribute *)&dev_attr_rules.attr);
+        device_destroy(sysfsClass, MKDEV(major, MINOR_LOG));
+        device_destroy(sysfsClass, MKDEV(major, MINOR_RULES));
+        class_destroy(sysfsClass);
+        unregister_chrdev(major, DEVICE_NAME_LOG_READ);
+        nf_unregister_net_hook(&init_net, forwardHookOps);
+        kfree(forwardHookOps);
         FreeLogger(logger);
         FreeRuleManager(ruleManager);
-        kfree(forward_hook_ops);
-        nf_unregister_net_hook(&init_net, forward_hook_ops);
-        unregister_chrdev(major_number, DEVICE_NAME);
-        class_destroy(sysfs_class);
-        device_destroy(sysfs_class, MKDEV(major_number, 0));
-        device_remove_file(sysfs_device, (const struct device_attribute *)&dev_attr_RulesAttribute.attr);
         return -1;
     }
 
@@ -216,17 +229,14 @@ static int __init init(void)
 
 static void __exit cleanup(void)
 {
-    nf_unregister_net_hook(&init_net, forward_hook_ops);
-    kfree(forward_hook_ops);
-
-    device_remove_file(sysfs_device, (const struct device_attribute *)&dev_attr_RulesAttribute.attr);
-    device_remove_file(sysfs_device, (const struct device_attribute *)&dev_attr_LogAttribute.attr);
-
-    device_destroy(sysfs_class, MKDEV(major_number, 0));
-    class_destroy(sysfs_class);
-
-    unregister_chrdev(major_number, DEVICE_NAME);
-
+    device_remove_file(sysfsLogResetDevice, (const struct device_attribute *)&dev_attr_reset.attr);
+    device_remove_file(sysfsRulesDevice, (const struct device_attribute *)&dev_attr_rules.attr);
+    device_destroy(sysfsClass, MKDEV(major, MINOR_LOG));
+    device_destroy(sysfsClass, MKDEV(major, MINOR_RULES));
+    class_destroy(sysfsClass);
+    unregister_chrdev(major, DEVICE_NAME_LOG_READ);
+    nf_unregister_net_hook(&init_net, forwardHookOps);
+    kfree(forwardHookOps);
     FreeLogger(logger);
     FreeRuleManager(ruleManager);
 }

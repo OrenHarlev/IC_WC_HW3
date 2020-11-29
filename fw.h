@@ -33,8 +33,9 @@ typedef enum {
 
 // auxiliary strings, for your convenience
 #define DEVICE_NAME_RULES			"rules"
-#define DEVICE_NAME_LOG				"log"
-#define DEVICE_NAME_CONN_TAB		"conn_tab"
+#define DEVICE_NAME_LOG_RESET		"log"
+#define ATTR_NAME_LOG_RESET         "reset"
+#define DEVICE_NAME_LOG_READ        "fw_log"
 #define CLASS_NAME					"fw"
 #define LOOPBACK_NET_DEVICE_NAME	"lo"
 #define IN_NET_DEVICE_NAME			"eth1"
