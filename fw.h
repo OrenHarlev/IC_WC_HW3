@@ -84,7 +84,7 @@ typedef struct {
     __u8    dst_prefix_size; 	// as above
     __be16	src_port; 			// number of port or 0 for any or port 1023 for any port number > 1023
     __be16	dst_port; 			// number of port or 0 for any or port 1023 for any port number > 1023
-    __u8	protocol; 			// values from: prot_t
+    prot_t	protocol; 			// values from: prot_t
     ack_t	ack; 				// values from: ack_t
     __u8	action;   			// valid values: NF_ACCEPT, NF_DROP
 } rule_t;

@@ -39,6 +39,8 @@ Logger CreateLogger(void)
     klist_init(logger->list, NULL, NULL);
     logger->nextReadNode = NULL;
 
+    ResetLogReader(logger);
+
     return logger;
 }
 
@@ -134,6 +136,8 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
 
     logger->nextReadNode = klist_next(&iterator);
     klist_iter_exit(&iterator);
+
+    printk(KERN_ERR "finish printing log\n");
 
     return buffOffset + 1;
 }

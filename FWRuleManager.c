@@ -76,7 +76,7 @@ bool ValidateRule(rule_t *rule)
         case PROT_ANY:
             break;
         default:
-            printk(KERN_ERR "Invalid rule. Invalid protocol\n");
+            printk(KERN_ERR "Invalid rule. Invalid protocol - %d\n", rule->protocol);
             return false;
     }
 

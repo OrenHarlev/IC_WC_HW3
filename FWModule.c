@@ -91,6 +91,7 @@ static struct file_operations LogReadFops =
 
 static unsigned int FWHook(void *priv, struct sk_buff *skb, const struct nf_hook_state *state)
 {
+    printk(KERN_ERR "FWHook\n");
     return MatchRawPacket(skb, state, ruleManager, logger);
 }
 
@@ -110,7 +111,8 @@ ssize_t RulesModify(struct device *dev, struct device_attribute *attr, const cha
 
 ssize_t LogModify(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
-    return ResetLogs(logger);
+    ResetLogs(logger);
+    return count;
 }
 
 static DEVICE_ATTR(rules, S_IWUSR | S_IRUGO, RulesDisplay, RulesModify);
