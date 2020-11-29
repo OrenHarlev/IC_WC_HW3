@@ -7,7 +7,7 @@
 
 typedef struct LogList *Logger;
 
-Logger CreateLogger();
+Logger CreateLogger(void);
 
 void FreeLogger(Logger logger);
 

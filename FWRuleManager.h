@@ -9,11 +9,11 @@
 
 typedef struct RuleTable *RuleManager;
 
-RuleManager CreateRuleManager();
+RuleManager CreateRuleManager(void);
 
 void FreeRuleManager(RuleManager ruleManager);
 
-ssize_t UpdateRules(const char *rawRulesTable, size_t count, RuleManager ruleManager);
+ssize_t UpdateRules(char *rawRulesTable, size_t count, RuleManager ruleManager);
 
 ssize_t GetRawRules(RuleManager ruleManager, char* buff);
 

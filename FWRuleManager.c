@@ -10,7 +10,7 @@ struct RuleTable
     __u8 NumberOfRules;
 };
 
-RuleManager CreateRuleManager()
+RuleManager CreateRuleManager(void)
 {
     RuleManager ruleManager = kmalloc(sizeof(struct RuleTable), GFP_KERNEL);
     ruleManager->rules = kmalloc(sizeof(rule_t) * MAX_RULES, GFP_KERNEL);
@@ -39,13 +39,13 @@ bool ValidateRule(rule_t *rule)
             return false;
     }
 
-    if (rule->src_prefix_size > 32)
+    if (rule->src_prefix_size > IP_BITS)
     {
         printk(KERN_ERR "Invalid rule. Invalid src_prefix_size - %u\n", rule->src_prefix_size);
         return false;
     }
 
-    if (rule->dst_prefix_size > 32)
+    if (rule->dst_prefix_size > IP_BITS)
     {
         printk(KERN_ERR "Invalid rule. Invalid dst_prefix_size - %u\n", rule->dst_prefix_size);
         return false;
@@ -117,9 +117,7 @@ bool ValidateRule(rule_t *rule)
 
 __be32 ConvertToMask(__u8 prefix_size)
 {
-    __be32 result = 0;
-    result = (1 << prefix_size - 1) - 1;
-    result += 1 << prefix_size - 1;
+    return (0xFFFFFFFF << (IP_BITS - prefix_size));
 }
 
 int ParseRule(char* rawRule, rule_t *rule)
@@ -162,7 +160,7 @@ int ParseRule(char* rawRule, rule_t *rule)
     return 0;
 }
 
-ssize_t UpdateRules(const char *rawRulesTable, size_t count, RuleManager ruleManager)
+ssize_t UpdateRules(char *rawRulesTable, size_t count, RuleManager ruleManager)
 {
     __u8 ruleNumber = 0;
     rule_t tempTable[MAX_RULES];
@@ -194,7 +192,8 @@ ssize_t UpdateRules(const char *rawRulesTable, size_t count, RuleManager ruleMan
 ssize_t GetRawRules(RuleManager ruleManager, char* buff)
 {
     ssize_t offset = 0;
-    for (__u8 i = 0; i < ruleManager->NumberOfRules; i++)
+    __u8 i = 0;
+    for (; i < ruleManager->NumberOfRules; i++)
     {
         rule_t curRule = ruleManager->rules[i];
         offset += snprintf(buff + offset,
@@ -239,7 +238,8 @@ void UpdateLogFromPacket(packet_t packet, log_row_t *logRow)
 
 int MatchPacket(packet_t packet, RuleManager ruleManager, log_row_t *logRow)
 {
-    for (__u8 i = 0; i < ruleManager->NumberOfRules; i++)
+    __u8 i = 0;
+    for (; i < ruleManager->NumberOfRules; i++)
     {
         rule_t curRule = ruleManager->rules[i];
         if (MatchRule(packet, curRule))

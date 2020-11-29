@@ -19,6 +19,6 @@ typedef struct {
     ack_t	ack; 				// values from: ack_t
 } packet_t;
 
-int ParsePacket(sk_buff *rawPacket, struct nf_hook_state *state, packet_t *parsedPacket, bool *isLoopBack, bool *isXmas);
+int ParsePacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, packet_t *parsedPacket, bool *isLoopBack, bool *isXmas);
 
 #endif

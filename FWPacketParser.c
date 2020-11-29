@@ -12,14 +12,14 @@
 #include "FWPacketParser.h"
 
 
-void ParseUDP(sk_buff *rawPacket, packet_t *parsedPacket)
+void ParseUDP(struct sk_buff *rawPacket, packet_t *parsedPacket)
 {
     struct udphdr *UDPHeader = udp_hdr(rawPacket);
     parsedPacket->src_port = ntohs(UDPHeader->source);
     parsedPacket->dst_port = ntohs(UDPHeader->dest);
 }
 
-void ParseTCP(sk_buff *rawPacket, packet_t *parsedPacket, bool *IsXmas)
+void ParseTCP(struct sk_buff *rawPacket, packet_t *parsedPacket, bool *IsXmas)
 {
     struct tcphdr *TCPHeader = tcp_hdr(rawPacket);
     parsedPacket->src_port = ntohs(TCPHeader->source);
@@ -28,7 +28,7 @@ void ParseTCP(sk_buff *rawPacket, packet_t *parsedPacket, bool *IsXmas)
     *IsXmas = TCPHeader->fin && TCPHeader->urg && TCPHeader->psh;
 }
 
-void ParseDirection(struct nf_hook_state *state, packet_t *parsedPacket, bool *isLoopBack)
+void ParseDirection(const struct nf_hook_state *state, packet_t *parsedPacket, bool *isLoopBack)
 {
     char *interface = state->in->name;
 
@@ -54,7 +54,7 @@ bool IsLoopBackIp(__be32 ip)
     return (ip >> (IP_BITS - LB_MASK)) == LB_MSByte;
 }
 
-int ParsePacket(sk_buff *rawPacket, struct nf_hook_state *state, packet_t *parsedPacket, bool *isLoopBack, bool *isXmas)
+int ParsePacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, packet_t *parsedPacket, bool *isLoopBack, bool *isXmas)
 {
     if (ntohs(rawPacket->protocol) != ETH_P_IP)
     {
@@ -70,7 +70,7 @@ int ParsePacket(sk_buff *rawPacket, struct nf_hook_state *state, packet_t *parse
         return -1;
     }
 
-    struct iphdr *ipHeader = ip_hdr(skb);
+    struct iphdr *ipHeader = ip_hdr(rawPacket);
 
     parsedPacket->protocol = ipHeader->protocol;
     parsedPacket->src_ip = ntohl(ipHeader->saddr);

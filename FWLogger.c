@@ -21,9 +21,9 @@ typedef struct
     struct klist_node node;
 } LogRecord;
 
-Logger CreateLogger()
+Logger CreateLogger(void)
 {
-    Logger logger = kmalloc(sizeof(LogList), GFP_KERNEL);
+    Logger logger = kmalloc(sizeof(struct LogList), GFP_KERNEL);
     if (logger == NULL)
     {
         return logger;
@@ -32,7 +32,7 @@ Logger CreateLogger()
     logger->list = kmalloc(sizeof(struct klist), GFP_KERNEL);
     if (logger->list == NULL)
     {
-        free(logger);
+        kfree(logger);
         return NULL;
     }
 
@@ -113,11 +113,11 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
         logRowSize = snprintf(buff + buffOffset,
                  LOG_ROW_MAX_PRINT_SIZE,
                  "%ptT %u %u %pI4h %pI4h %u %u %d %u\n",
-                 log.timestamp,
+                 &log.timestamp,
                  log.protocol,
                  log.action,
-                 log.src_ip,
-                 log.dst_ip,
+                 &log.src_ip,
+                 &log.dst_ip,
                  log.src_port,
                  log.dst_port,
                  log.reason,
@@ -141,12 +141,13 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
 int ResetLogReader(Logger logger)
 {
     struct klist_iter iterator;
-    struct klist_node *listNode;
 
     klist_iter_init(logger->list, &iterator);
 
     logger->nextReadNode = klist_next(&iterator);
     klist_iter_exit(&iterator);
+
+    return 0;
 }
 
 ssize_t ResetLogs(Logger logger)
@@ -155,13 +156,14 @@ ssize_t ResetLogs(Logger logger)
 
     struct klist_iter iterator;
     struct klist_node *listNode;
-    klist_iter_init(logger->list, &iterator)
+    klist_iter_init(logger->list, &iterator);
 
     while((listNode = klist_next(&iterator)) != NULL)
     {
         klist_remove(listNode);
-        kfree(container_of(listNode, LogRecord, node))
+        kfree(container_of(listNode, LogRecord, node));
     }
 
     klist_iter_exit(&iterator);
+    return 0;
 }

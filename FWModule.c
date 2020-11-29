@@ -71,12 +71,12 @@ ssize_t LogRead(struct file *filp, char *buff, size_t length, loff_t *offp)
 
 int LogOpen(struct inode *_inode, struct file *_file)
 {
-    ResetLogReader(logger);
+    return ResetLogReader(logger);
 }
 
 int LogClose(struct inode *_inode, struct file *_file)
 {
-    ResetLogReader(logger);
+    return ResetLogReader(logger);
 }
 
 static struct file_operations LogReadFops =
@@ -103,7 +103,9 @@ ssize_t RulesDisplay(struct device *dev, struct device_attribute *attr, char *bu
 
 ssize_t RulesModify(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
-    return UpdateRules(buf, count, ruleManager);
+    char rawRules[count];
+    memcpy(rawRules, buf, count);
+    return UpdateRules(rawRules, count, ruleManager);
 }
 
 ssize_t LogModify(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
