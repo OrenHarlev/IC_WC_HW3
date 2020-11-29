@@ -74,7 +74,7 @@ int LogAction(log_row_t logRow, Logger logger)
         if (MatchRecords(logRecord->log, logRow))
         {
             logRecord->log.count++;
-            logRecord->log.timestamp = ktime_get_seconds();
+            logRecord->log.timestamp = ktime_get_real();
             klist_iter_exit(&iterator);
             return 0;
         }
@@ -87,7 +87,7 @@ int LogAction(log_row_t logRow, Logger logger)
     }
 
     memcpy(&newLogRecord->log, &logRow, sizeof(log_row_t));
-    newLogRecord->log.timestamp = ktime_get_seconds();
+    newLogRecord->log.timestamp = ktime_get_real();
     newLogRecord->log.count = 1;
 
     klist_add_head(&newLogRecord->node, logger->list);
@@ -115,8 +115,8 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
 
         logRowSize = snprintf(buff + buffOffset,
                  LOG_ROW_MAX_PRINT_SIZE,
-                 "%ptT %u %u %pI4h %pI4h %u %u %d %u\n",
-                 &log.timestamp,
+                 "%lld %u %u %pI4h %pI4h %u %u %d %u\n",
+                 log.timestamp,
                  log.protocol,
                  log.action,
                  &log.src_ip,
