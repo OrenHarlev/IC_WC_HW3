@@ -49,6 +49,9 @@ typedef enum {
 #define MAX_RULES		(50)
 #define MAX_RULE_NAME   (20)
 #define RULE_ARGS       (11)
+#define IP_BITS         (32)
+#define LB_MSByte       (127)
+#define LB_MASK         (8)
 
 // device minor numbers, for your convenience
 typedef enum {
@@ -99,4 +102,4 @@ typedef struct {
     unsigned int   	count;        	// counts this line's hits
 } log_row_t;
 
-#endif // _FW_H_
+#endif
