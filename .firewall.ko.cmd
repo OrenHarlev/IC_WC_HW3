@@ -1,1 +1,0 @@
-cmd_/home/student/CLionProjects/IC_WC_HW3/firewall.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000 -T ./scripts/module-common.lds  --build-id  -o /home/student/CLionProjects/IC_WC_HW3/firewall.ko /home/student/CLionProjects/IC_WC_HW3/firewall.o /home/student/CLionProjects/IC_WC_HW3/firewall.mod.o ;  true
