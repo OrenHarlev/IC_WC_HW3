@@ -41,7 +41,7 @@ def RuleRawToPrint(rule):
 	rule[1] = NumToDirection[int(rule[1])]
 	rule[2] = ConvertToAny(rule[2])
 	rule[3] = ConvertToAny(rule[3])
-    rule[4] = NumToProt[int(rule[4])]
+	rule[4] = NumToProt[int(rule[4])]
 	rule[7] = NumToAck[int(rule[7])]
 	rule[8] = NumToAction[int(rule[8])]
 	return rule
@@ -100,23 +100,24 @@ def LoadRules(rulesFile):
 
 
 def LogRawToPrint(log):
-    log = log.split()
-    log[0] =  datetime.datetime.fromtimestamp(int(log[0]) / 1e9).strftime("%d/%m/%Y, %H:%M:%S")
-    log[5] = NumToProt[int(log[5])]
-    log[6] = NumToAction[int(log[6])]
-    if int(log[7]) <= 0:
-        log[7] = NumToReason[int(log[7])]
-    return log
+	log = log.split()
+	log[0] = datetime.datetime.fromtimestamp(int(log[0]) / 1e9).strftime("%d/%m/%Y, %H:%M:%S")
+	log[5] = NumToProt[int(log[5])]
+	log[6] = NumToAction[int(log[6])]
+	if int(log[7]) <= 0:
+		log[7] = NumToReason[int(log[7])]
+	return log
 
 
 def ReadLog():
-    with open(LogReadPath, 'r') as f:
-        logs = f.read()
-    output = Texttable(0)
-    output.add_row(["Timestamp", "Src Ip", "Dst Ip", "Src Port", "Dst Port", "Protocol", "Action", "Reason", "Count"])
-    for log in logs.splitlines():
-        output.add_row(LogRawToPrint(log))
-    print(output.draw())
+	with open(LogReadPath, 'r') as f:
+		logs = f.read()
+	output = Texttable(0)
+	output.add_row(["Timestamp", "Src Ip", "Dst Ip", "Src Port", "Dst Port", "Protocol", "Action", "Reason", "Count"])
+	for log in logs.splitlines():
+		if len(log) > 10:
+			output.add_row(LogRawToPrint(log))
+	print(output.draw())
 
 
 def ResetLog():
