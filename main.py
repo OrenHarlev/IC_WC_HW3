@@ -25,13 +25,33 @@ AckToNum = { "no" : 1, "yes" : 2, "any" : 3 }
 NumToDirection = { "in" : 1, "out" : 2, "any" : 3 }
 DirectionToNum = { 1 : "in", 2 : "out", 3 : "any" }
 
-def show_rules():
+
+def ConvertToAny(ip):
+	ipAddr = ipaddress.ip_network(ip, False)
+	if ipAddr.prefixlen == 0:
+		return "any"
+	return ip
+
+
+def RuleRawToPrint(rule):
+    rule = rule.split()
+    rule[1] = NumToDirection[int(rule[1])]
+    rule[2] = ConvertToAny(rule[2])
+    rule[3] = ConvertToAny(rule[3])
+    rule[4] = NumToProt[int(rule[4])]
+    rule[7] = NumToAck[int(rule[7])]
+    rule[8] = NumToAction[int(rule[8])]
+    return rule
+
+
+def ReadRules():
     with open(RulesPath, 'r') as f:
         rules = f.read()
-    table = Texttable(0)
-    table.add_row(["Name", "Direction", "Src Ip", "Dst Ip", "Protocol", "Src Port", "Dst Port", "Ack", "Action"])
+    output = Texttable(0)
+    output.add_row(["Name", "Direction", "Drc Ip", "Dst Ip", "Protocol", "Src Port", "Dst Port", "Ack", "Action"])
     for rule in rules.splitlines():
-        line[1] = int_to_direction[int(line[1])]
+        output.add_row(RuleRawToPrint(rule))
+    print(output.draw())
 
 
 def FormatRule(rule):
@@ -47,26 +67,48 @@ def LoadRules(rulesFile):
     for rule in rules:
         rule = formatRule(rule)
     with open(RulesPath. 'w') as f:
-        
 
-def show_log():
-    with open(SHOWING_LOGS_PATH, 'r') as f:
+
+def load_rules(file_path):
+    if file_path == None:
+        print("Missing file path")
+        return
+    if not os.path.exists(file_path):
+        print("Path doesn't exist")
+        return
+    with open(file_path, 'r') as f:
+        rules = f.read()
+    with open(TABLE_PATH, 'w') as f:
+        f.write("0")
+        for line in rules.splitlines():
+            line = line.split()
+            if len(line) != 9:
+                continue
+
+
+def LogRawToPrint(log):
+    log = log.split()
+    log[0] =  datetime.datetime.fromtimestamp(int(log[0]) / 1e9).strftime("%d/%m/%Y, %H:%M:%S")
+    log[5] = NumToProt[int(log[5])]
+    log[6] = NumToAction[int(log[6])]
+    log[7] = NumToReason[int(log[7])]
+
+
+def ReadLog():
+    with open(LogReadPath, 'r') as f:
         logs = f.read()
-    t = Texttable(0)
-    t.add_row(["Timestamp", , "Src Ip", "Dst Ip", "Src Port", "Dst Port", "Protocol", "Action", "Reason", "Count"])
-    for line in logs.splitlines():
-        line = line.split()
-        line[0] =  datetime.datetime.fromtimestamp(int(line[0]) / 1e9).strftime("%d/%m/%Y, %H:%M:%S")
-        line[5] = int_to_protocol[int(line[5])]
-        line[6] = int_to_action[int(line[6])]
-        line[7] = int_to_reason[int(line[7])]
-        t.add_row(line)
-    print(t.draw())
+    output = Texttable(0)
+    output.add_row(["Timestamp", "Src Ip", "Dst Ip", "Src Port", "Dst Port", "Protocol", "Action", "Reason", "Count"])
+    for log in logs.splitlines():
+        output.add_row(LogRawToPrint(log))
+    print(output.draw())
 
 
-def clear_log():
+def ResetLog():
     with open(LogResetPath, 'w') as f:
         f.write("reset")
+
+
 
 
 @click.command()
@@ -74,13 +116,13 @@ def clear_log():
 @click.argument('rulesFile', required=False, type=click.File('r'))
 def main(command, rulesFile):
     if arg == "show_rules":
-        show_rules()
+        ReadRules()
     elif arg == "load_rules":
         LoadRules(rulesFile)
     elif arg == "show_log":
-        show_log()
+        ReadLog()
     elif arg == "clear_log":
-        clear_log()
+        ResetLog()
 
 
 if __name__ == "__main__":

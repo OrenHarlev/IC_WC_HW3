@@ -203,7 +203,7 @@ ssize_t GetRawRules(RuleManager ruleManager, char* buff)
         rule_t curRule = ruleManager->rules[i];
         offset += snprintf(buff + offset,
                             PAGE_SIZE - offset,
-                            "%s %u %u %u %u %u %u %u %u %u %u\n",
+                            "%s %u %pI4h/%u %pI4h/%u %u %u %u %u %u\n",
                             curRule.rule_name,
                             curRule.direction,
                             curRule.src_ip,
