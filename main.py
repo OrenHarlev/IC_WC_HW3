@@ -2,6 +2,7 @@
 import os
 import click
 import datetime
+import ipaddress
 from texttable import Texttable
 
 #devises paths:
@@ -25,23 +26,25 @@ AckToNum = { "no" : 1, "yes" : 2, "any" : 3 }
 NumToDirection = { "in" : 1, "out" : 2, "any" : 3 }
 DirectionToNum = { 1 : "in", 2 : "out", 3 : "any" }
 
+#consts
+RuleArgs = 11
 
 def ConvertToAny(ip):
 	ipAddr = ipaddress.ip_network(ip, False)
-	if ipAddr.prefixlen == 0:
+	if int(ipAddr.network_address) == 0 or ipAddr.prefixlen == 0:
 		return "any"
 	return ip
 
 
 def RuleRawToPrint(rule):
-    rule = rule.split()
-    rule[1] = NumToDirection[int(rule[1])]
-    rule[2] = ConvertToAny(rule[2])
-    rule[3] = ConvertToAny(rule[3])
-    rule[4] = NumToProt[int(rule[4])]
-    rule[7] = NumToAck[int(rule[7])]
-    rule[8] = NumToAction[int(rule[8])]
-    return rule
+	rule = rule.split()
+	rule[1] = NumToDirection[int(rule[1])]
+	rule[2] = ConvertToAny(rule[2])
+	rule[3] = ConvertToAny(rule[3])
+	rule[4] = NumToProt[int(rule[4])]
+	rule[7] = NumToAck[int(rule[7])]
+	rule[8] = NumToAction[int(rule[8])]
+	return rule
 
 
 def ReadRules():
@@ -54,36 +57,46 @@ def ReadRules():
     print(output.draw())
 
 
-def FormatRule(rule):
-    rule = rule.split
-    result = []
-    result[0] = rule[:20]
-    result[1]
-    rule[1] = DirectionToNum[rule[1]]
+def ParseIp(ip):
+	ip = ip.lower()
+	if ip == "any":
+		return "0", "0"
+	ipAddr = ipaddress.ip_network(ip, False)
+	return str(int(ipAddr.network_address)), str(ipAddr.prefixlen)
+
+
+def ParsePort(port):
+	if port == "any":
+		return "0"
+	if port == ">1023":
+		return "1023"
+	return int(port)
+
+
+def ParseRule(rule):
+	rule = rule.split()
+	res = []
+	res.append(rule[0][:20])
+	res.append(DirectionToNum[rule[1].lower()])
+	res.extend(ParseIp(rule[2]))
+	res.extend(parse_ip(rule[3]))
+	res.append(ProtToNum[rule[4].lower()])
+	res.append(ParsePort(rule[5]))
+	res.append(ParsePort(rule[6]))
+	res.append(DirectionToNum[rule[7].lower()])
+	res.append(ActionToNum[rule[8].lower()])
+	return " ".join(res) + '\n'
 
 
 def LoadRules(rulesFile):
-    rules = rulesFile.read().splitlines()
-    for rule in rules:
-        rule = formatRule(rule)
-    with open(RulesPath. 'w') as f:
-
-
-def load_rules(file_path):
-    if file_path == None:
-        print("Missing file path")
-        return
-    if not os.path.exists(file_path):
-        print("Path doesn't exist")
-        return
-    with open(file_path, 'r') as f:
-        rules = f.read()
-    with open(TABLE_PATH, 'w') as f:
-        f.write("0")
-        for line in rules.splitlines():
-            line = line.split()
-            if len(line) != 9:
-                continue
+	rules = rulesFile.read()
+	with open(RulesPath, 'w') as f:
+		parsedRules = ""
+		for rule in rules.splitlines():
+			parsedRules += ParseRule(rule)
+		if parsedRules[-1] == '\n':
+			parsedRules = parsedRules[:-1]
+		f.write(parsedRules)
 
 
 def LogRawToPrint(log):
@@ -115,13 +128,13 @@ def ResetLog():
 @click.argument('command', required=True, type=click.Choice(["show_rules", "load_rules", "show_log", "clear_log"]))
 @click.argument('rulesFile', required=False, type=click.File('r'))
 def main(command, rulesFile):
-    if arg == "show_rules":
+    if command == "show_rules":
         ReadRules()
-    elif arg == "load_rules":
+    elif command == "load_rules":
         LoadRules(rulesFile)
-    elif arg == "show_log":
+    elif command == "show_log":
         ReadLog()
-    elif arg == "clear_log":
+    elif command == "clear_log":
         ResetLog()
 
 
