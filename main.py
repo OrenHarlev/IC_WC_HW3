@@ -23,8 +23,8 @@ ReasonToNum = { "REASON_FW_INACTIVE" : -1, "REASON_NO_MATCHING_RULE" : -2, "REAS
 NumToAck = { 1 : "no", 2 : "yes", 3 : "any" }
 AckToNum = { "no" : 1, "yes" : 2, "any" : 3 }
 
-NumToDirection = { "in" : 1, "out" : 2, "any" : 3 }
-DirectionToNum = { 1 : "in", 2 : "out", 3 : "any" }
+DirectionToNum = { "in" : 1, "out" : 2, "any" : 3 }
+NumToDirection = { 1 : "in", 2 : "out", 3 : "any" }
 
 #consts
 RuleArgs = 11
@@ -83,9 +83,9 @@ def ParseRule(rule):
 	res.append(ProtToNum[rule[4].lower()])
 	res.append(ParsePort(rule[5]))
 	res.append(ParsePort(rule[6]))
-	res.append(DirectionToNum[rule[7].lower()])
+	res.append(AckToNum[rule[7].lower()])
 	res.append(ActionToNum[rule[8].lower()])
-	return " ".join(res) + '\n'
+	return " ".join([str(i) for i in res]) + '\n'
 
 
 def LoadRules(rulesFile):
@@ -126,12 +126,12 @@ def ResetLog():
 
 @click.command()
 @click.argument('command', required=True, type=click.Choice(["show_rules", "load_rules", "show_log", "clear_log"]))
-@click.argument('rulesFile', required=False, type=click.File('r'))
-def main(command, rulesFile):
+@click.argument('rulesfile', required=False, type=click.File('r'))
+def main(command, rulesfile):
     if command == "show_rules":
         ReadRules()
     elif command == "load_rules":
-        LoadRules(rulesFile)
+        LoadRules(rulesfile)
     elif command == "show_log":
         ReadLog()
     elif command == "clear_log":
