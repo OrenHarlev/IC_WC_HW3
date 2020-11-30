@@ -41,7 +41,7 @@ def RuleRawToPrint(rule):
 	rule[1] = NumToDirection[int(rule[1])]
 	rule[2] = ConvertToAny(rule[2])
 	rule[3] = ConvertToAny(rule[3])
-	rule[4] = NumToProt[int(rule[4])]
+    rule[4] = NumToProt[int(rule[4])]
 	rule[7] = NumToAck[int(rule[7])]
 	rule[8] = NumToAction[int(rule[8])]
 	return rule
@@ -79,7 +79,7 @@ def ParseRule(rule):
 	res.append(rule[0][:20])
 	res.append(DirectionToNum[rule[1].lower()])
 	res.extend(ParseIp(rule[2]))
-	res.extend(parse_ip(rule[3]))
+	res.extend(ParseIp(rule[3]))
 	res.append(ProtToNum[rule[4].lower()])
 	res.append(ParsePort(rule[5]))
 	res.append(ParsePort(rule[6]))
@@ -104,7 +104,9 @@ def LogRawToPrint(log):
     log[0] =  datetime.datetime.fromtimestamp(int(log[0]) / 1e9).strftime("%d/%m/%Y, %H:%M:%S")
     log[5] = NumToProt[int(log[5])]
     log[6] = NumToAction[int(log[6])]
-    log[7] = NumToReason[int(log[7])]
+    if int(log[7]) <= 0:
+        log[7] = NumToReason[int(log[7])]
+    return log
 
 
 def ReadLog():

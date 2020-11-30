@@ -115,14 +115,14 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
 
         logRowSize = snprintf(buff + buffOffset,
                  LOG_ROW_MAX_PRINT_SIZE,
-                 "%lld %u %u %pI4h %pI4h %u %u %d %u\n",
+                 "%lld %pI4h %pI4h %u %u %u %u %d %u\n",
                  log.timestamp,
-                 log.protocol,
-                 log.action,
                  &log.src_ip,
                  &log.dst_ip,
                  log.src_port,
                  log.dst_port,
+                 log.protocol,
+                 log.action,
                  log.reason,
                  log.count);
 
