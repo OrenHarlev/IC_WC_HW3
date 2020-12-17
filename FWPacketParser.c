@@ -33,6 +33,8 @@ void ParseTCP(struct sk_buff *rawPacket, packet_t *parsedPacket, bool *IsXmas)
     parsedPacket->src_port = ntohs(TCPHeader->source);
     parsedPacket->dst_port = ntohs(TCPHeader->dest);
     parsedPacket->ack = TCPHeader->ack ? ACK_YES : ACK_NO;
+    parsedPacket->syn = TCPHeader->syn;
+    parsedPacket->fin = TCPHeader->fin;
     *IsXmas = TCPHeader->fin && TCPHeader->urg && TCPHeader->psh;
 }
 
