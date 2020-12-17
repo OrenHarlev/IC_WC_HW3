@@ -3,6 +3,7 @@
 
 #include <linux/kernel.h>
 #include "fw.h"
+#include "FWPacketParser.h"
 
 
 typedef struct LogList *Logger;

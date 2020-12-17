@@ -6,6 +6,7 @@
 
 #include "fw.h"
 #include "FWLogger.h"
+#include "FWPacketParser.h"
 
 #define LOG_ROW_MAX_PRINT_SIZE (256)
 

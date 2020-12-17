@@ -3,12 +3,17 @@
 #include <linux/netfilter_ipv4.h>
 
 #include "fw.h"
-#include "FWPacketMatcher.h"
-#include "FWRuleManager.h"
 #include "FWPacketParser.h"
+#include "FWRuleManager.h"
+#include "FWConnectionManager.h"
+#include "FWPacketMatcher.h"
 
+bool IsTcpNonSynPacket(packet_t packet)
+{
+    return packet.protocol == PROT_TCP && packet.ack == ACK_YES;
+}
 
-int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, RuleManager ruleManager, Logger logger)
+int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, RuleManager ruleManager, ConnectionManager connectionManager, Logger logger)
 {
     packet_t packet;
     bool isXmas;
@@ -34,7 +39,21 @@ int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state,
         return logRow.action;
     }
 
-    int action = MatchPacket(packet, ruleManager, &logRow);
+    int action;
+    if (IsTcpNonSynPacket(packet))
+    {
+        action = MatchAndUpdateConnection(packet, connectionManager, &logRow);
+    }
+    else
+    {
+        action = MatchPacket(packet, ruleManager, &logRow);
+
+        if (packet.protocol == PROT_TCP && action == NF_ACCEPT)
+        {
+            AddConnection(connectionManager, packet);
+        }
+    }
+
     if (action != NO_MATCHING_RULE)
     {
         LogAction(logRow, logger);

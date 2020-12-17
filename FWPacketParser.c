@@ -120,3 +120,12 @@ int ParsePacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, pa
 
     return 0;
 }
+
+void UpdateLogFromPacket(packet_t packet, log_row_t *logRow)
+{
+    logRow->protocol = packet.protocol;
+    logRow->src_ip = packet.src_ip;
+    logRow->dst_ip = packet.dst_ip;
+    logRow->src_port = packet.src_port;
+    logRow->dst_port = packet.dst_port;
+}

@@ -17,6 +17,7 @@
 #include "fw.h"
 #include "FWPacketMatcher.h"
 #include "FWRuleManager.h"
+#include "FWConnectionManager.h"
 #include "FWLogger.h"
 
 
@@ -39,6 +40,7 @@ static struct device* sysfsLogResetDevice = NULL;
 //---------------------------logic---------------------------------
 
 RuleManager ruleManager;
+ConnectionManager connectionManager;
 Logger logger;
 
 //==================== FUNCTIONS ===========================
@@ -91,7 +93,7 @@ static struct file_operations LogReadFops =
 
 static unsigned int FWHook(void *priv, struct sk_buff *skb, const struct nf_hook_state *state)
 {
-    return MatchRawPacket(skb, state, ruleManager, logger);
+    return MatchRawPacket(skb, state, ruleManager, connectionManager, logger);
 }
 
 //------------------------sysfs api--------------------------------
@@ -122,10 +124,12 @@ static DEVICE_ATTR(reset, S_IWUSR, NULL, LogModify);
 static int __init init(void)
 {
     ruleManager = CreateRuleManager();
+    connectionManager = CreateConnectionManager();
     logger = CreateLogger();
-    if (ruleManager == NULL || logger == NULL)
+    if (ruleManager == NULL || connectionManager == NULL || logger == NULL)
     {
         FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
         printk(KERN_ERR "Failed to init module: Memory allocation failed.");
         return -1;
@@ -135,6 +139,7 @@ static int __init init(void)
     if (forwardHookOps == NULL)
     {
         FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
         printk(KERN_ERR "Failed to init module: Memory allocation failed.");
         return -1;
@@ -150,6 +155,7 @@ static int __init init(void)
         printk(KERN_ERR "Failed to init module: forward hook_ops init failed.");
         kfree(forwardHookOps);
         FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
         return -1;
     }
@@ -162,6 +168,7 @@ static int __init init(void)
         nf_unregister_net_hook(&init_net, forwardHookOps);
         kfree(forwardHookOps);
         FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
         return -1;
     }
@@ -175,6 +182,7 @@ static int __init init(void)
         nf_unregister_net_hook(&init_net, forwardHookOps);
         kfree(forwardHookOps);
         FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
         return -1;
     }
@@ -189,6 +197,7 @@ static int __init init(void)
         nf_unregister_net_hook(&init_net, forwardHookOps);
         kfree(forwardHookOps);
         FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
         return -1;
     }
@@ -203,6 +212,7 @@ static int __init init(void)
         nf_unregister_net_hook(&init_net, forwardHookOps);
         kfree(forwardHookOps);
         FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
         return -1;
     }
@@ -218,6 +228,7 @@ static int __init init(void)
         nf_unregister_net_hook(&init_net, forwardHookOps);
         kfree(forwardHookOps);
         FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
         return -1;
     }
@@ -234,6 +245,7 @@ static int __init init(void)
         nf_unregister_net_hook(&init_net, forwardHookOps);
         kfree(forwardHookOps);
         FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
         return -1;
     }
@@ -251,6 +263,7 @@ static int __init init(void)
         nf_unregister_net_hook(&init_net, forwardHookOps);
         kfree(forwardHookOps);
         FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
         return -1;
     }
@@ -270,6 +283,7 @@ static void __exit cleanup(void)
     nf_unregister_net_hook(&init_net, forwardHookOps);
     kfree(forwardHookOps);
     FreeLogger(logger);
+    FreeConnectionManager(connectionManager);
     FreeRuleManager(ruleManager);
 }
 

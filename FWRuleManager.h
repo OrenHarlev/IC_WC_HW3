@@ -19,6 +19,4 @@ ssize_t GetRawRules(RuleManager ruleManager, char* buff);
 
 int MatchPacket(packet_t packet, RuleManager ruleManager, log_row_t *logRow);
 
-void UpdateLogFromPacket(packet_t packet, log_row_t *logRow);
-
 #endif

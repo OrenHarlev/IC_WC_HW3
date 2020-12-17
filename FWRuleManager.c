@@ -2,6 +2,7 @@
 #include <linux/netfilter_ipv4.h>
 
 #include "FWRuleManager.h"
+#include "FWPacketParser.h"
 #include "fw.h"
 
 struct RuleTable
@@ -230,15 +231,6 @@ bool MatchRule(packet_t packet, rule_t rule)
         (packet.protocol == PROT_ICMP || rule.src_port == PORT_ANY || (rule.src_port == PORT_ABOVE_1023 && packet.src_port >= PORT_ABOVE_1023) || packet.src_port == rule.src_port) &&
         (rule.dst_ip == IP_ANY || ((packet.dst_ip & rule.dst_prefix_mask) == (rule.dst_ip & rule.dst_prefix_mask))) &&
         (rule.src_ip == IP_ANY || ((packet.src_ip & rule.src_prefix_mask) == (rule.src_ip & rule.src_prefix_mask)));
-}
-
-void UpdateLogFromPacket(packet_t packet, log_row_t *logRow)
-{
-    logRow->protocol = packet.protocol;
-    logRow->src_ip = packet.src_ip;
-    logRow->dst_ip = packet.dst_ip;
-    logRow->src_port = packet.src_port;
-    logRow->dst_port = packet.dst_port;
 }
 
 int MatchPacket(packet_t packet, RuleManager ruleManager, log_row_t *logRow)

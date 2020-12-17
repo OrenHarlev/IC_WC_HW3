@@ -24,10 +24,13 @@ typedef enum {
 
 // various reasons to be registered in each log entry
 typedef enum {
-    REASON_FW_INACTIVE           = -1,
-    REASON_NO_MATCHING_RULE      = -2,
-    REASON_XMAS_PACKET           = -4,
-    REASON_ILLEGAL_VALUE         = -6,
+    REASON_FW_INACTIVE            = -1,
+    REASON_NO_MATCHING_RULE       = -2,
+    REASON_XMAS_PACKET            = -4,
+    REASON_ILLEGAL_VALUE          = -8,
+    REASON_NO_MATCHING_CONNECTION = -16,
+    REASON_STATE_DONT_MATCH       = -32,
+    REASON_ACTIVE_CONNECTION      = -64
 } reason_t;
 
 // auxiliary strings, for your convenience

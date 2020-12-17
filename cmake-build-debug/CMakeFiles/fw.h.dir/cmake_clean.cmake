@@ -1,10 +1,13 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/fw.h.dir/FWLogger.c.o"
-  "CMakeFiles/fw.h.dir/FWModule.c.o"
-  "CMakeFiles/fw.h.dir/FWPacketMatcher.c.o"
-  "CMakeFiles/fw.h.dir/FWPacketParser.c.o"
-  "CMakeFiles/fw.h.dir/FWRuleManager.c.o"
-  "fw.h"
+  "CMakeFiles/fw.h.dir/FWLogger.c.obj"
+  "CMakeFiles/fw.h.dir/FWModule.c.obj"
+  "CMakeFiles/fw.h.dir/FWPacketMatcher.c.obj"
+  "CMakeFiles/fw.h.dir/FWPacketParser.c.obj"
+  "CMakeFiles/fw.h.dir/FWRuleManager.c.obj"
+  "CMakeFiles/fw.h.dir/FWStateManager.c.obj"
+  "fw.h.exe"
+  "fw.h.exe.manifest"
+  "fw.h.lib"
   "fw.h.pdb"
 )
 
