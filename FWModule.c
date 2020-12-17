@@ -36,6 +36,7 @@ static int major;
 static struct class* sysfsClass = NULL;
 static struct device* sysfsRulesDevice = NULL;
 static struct device* sysfsLogResetDevice = NULL;
+static struct device* sysfsConnectionsDevice = NULL;
 
 //---------------------------logic---------------------------------
 
@@ -116,7 +117,18 @@ ssize_t LogModify(struct device *dev, struct device_attribute *attr, const char 
     return count;
 }
 
+ssize_t ConnectionDisplay(struct device *dev, struct device_attribute *attr, char *buf)
+{
+    return ReadConnections(connectionManager, buf);
+}
+
+ssize_t ConnectionModify(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+    // todo add connection from buff
+}
+
 static DEVICE_ATTR(rules, S_IWUSR | S_IRUGO, RulesDisplay, RulesModify);
+static DEVICE_ATTR(conns, S_IWUSR | S_IRUGO, ConnectionDisplay, ConnectionModify);
 static DEVICE_ATTR(reset, S_IWUSR, NULL, LogModify);
 
 //==================== MODULE SETUP =============================
@@ -233,10 +245,28 @@ static int __init init(void)
         return -1;
     }
 
+    sysfsConnectionsDevice = device_create(sysfsClass, NULL, MKDEV(major, MINOR_CONNS), NULL, "conns");
+    if (IS_ERR(sysfsConnectionsDevice))
+    {
+        printk(KERN_ERR "Failed to init module: device_create failed.");
+        device_destroy(sysfsClass, MKDEV(major, MINOR_LOG));
+        device_destroy(sysfsClass, MKDEV(major, MINOR_RULES));
+        device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
+        class_destroy(sysfsClass);
+        unregister_chrdev(major, DEVICE_NAME_LOG_READ);
+        nf_unregister_net_hook(&init_net, forwardHookOps);
+        kfree(forwardHookOps);
+        FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
+        FreeRuleManager(ruleManager);
+        return -1;
+    }
+
     //create sysfs file attributes
     if (device_create_file(sysfsRulesDevice, (const struct device_attribute *)&dev_attr_rules.attr))
     {
         printk(KERN_ERR "Failed to init module: device_create_file failed.");
+        device_destroy(sysfsClass, MKDEV(major, MINOR_CONNS));
         device_destroy(sysfsClass, MKDEV(major, MINOR_LOG));
         device_destroy(sysfsClass, MKDEV(major, MINOR_RULES));
         device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
@@ -255,6 +285,26 @@ static int __init init(void)
     {
         printk(KERN_ERR "Failed to init module: device_create_file failed.");
         device_remove_file(sysfsRulesDevice, (const struct device_attribute *)&dev_attr_rules.attr);
+        device_destroy(sysfsClass, MKDEV(major, MINOR_CONNS));
+        device_destroy(sysfsClass, MKDEV(major, MINOR_LOG));
+        device_destroy(sysfsClass, MKDEV(major, MINOR_RULES));
+        device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
+        class_destroy(sysfsClass);
+        unregister_chrdev(major, DEVICE_NAME_LOG_READ);
+        nf_unregister_net_hook(&init_net, forwardHookOps);
+        kfree(forwardHookOps);
+        FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
+        FreeRuleManager(ruleManager);
+        return -1;
+    }
+
+    //create sysfs file attributes
+    if (device_create_file(sysfsConnectionsDevice, (const struct device_attribute *)&dev_attr_conns.attr))
+    {
+        printk(KERN_ERR "Failed to init module: device_create_file failed.");
+        device_remove_file(sysfsRulesDevice, (const struct device_attribute *)&dev_attr_rules.attr);
+        device_destroy(sysfsClass, MKDEV(major, MINOR_CONNS));
         device_destroy(sysfsClass, MKDEV(major, MINOR_LOG));
         device_destroy(sysfsClass, MKDEV(major, MINOR_RULES));
         device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
@@ -273,8 +323,10 @@ static int __init init(void)
 
 static void __exit cleanup(void)
 {
+    device_remove_file(sysfsConnectionsDevice, (const struct device_attribute *)&dev_attr_conns.attr);
     device_remove_file(sysfsLogResetDevice, (const struct device_attribute *)&dev_attr_reset.attr);
     device_remove_file(sysfsRulesDevice, (const struct device_attribute *)&dev_attr_rules.attr);
+    device_destroy(sysfsClass, MKDEV(major, MINOR_CONNS));
     device_destroy(sysfsClass, MKDEV(major, MINOR_LOG));
     device_destroy(sysfsClass, MKDEV(major, MINOR_RULES));
     device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
