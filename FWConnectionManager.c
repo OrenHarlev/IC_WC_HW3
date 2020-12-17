@@ -166,16 +166,18 @@ int AddConnection(ConnectionManager connectionManager, packet_t packet)
     return 0;
 }
 
-bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t otherState)
+bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t *otherState)
 {
     if (*state != LISTEN)
     {
         printk(KERN_ERR "Invalid state. expected state LISTEN.\n");
         return false;
     }
-    if (otherState != SYN_SENT)
+    if (*otherState != SYN_SENT)
     {
-        // todo close connection?
+        printk(KERN_ERR "Invalid state. server can be in LISTEN state only when client in SYN_SEND.\n");
+        *state = CLOSED;
+        *otherState = CLOSED;
         return false;
     }
     if (packet.ack == ACK_YES && packet.syn)
@@ -183,113 +185,182 @@ bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t otherSta
         *state = SYN_RCVD;
         return true;
     }
-    // todo close connection?
+
     return false;
 }
 
-bool MatchAndUpdateStateSynSent(state_t *state, packet_t packet, state_t otherState)
+bool MatchAndUpdateStateSynSent(state_t *state, packet_t packet, state_t *otherState)
 {
     if (*state != SYN_SENT)
     {
-        // todo error
+        printk(KERN_ERR "Invalid state. expected state SYN_SENT.\n");
         return false;
     }
-    if (otherState == SYN_RCVD && packet.ack == ACK_YES && !packet.syn)
+    if ((*otherState) != LISTEN && (*otherState) != SYN_RCVD)
+    {
+        printk(KERN_ERR "Invalid state. client can be in SYN_SENT state only when server in LISTEN or SYN_RCVD.\n");
+        *state = CLOSED;
+        *otherState = CLOSED;
+        return false;
+    }
+    // resend of syn packet
+    if (packet.syn && packet.ack == ACK_NO)
+    {
+        return true;
+    }
+    // last stage of 3-way hand shake
+    if (*otherState == SYN_RCVD && packet.ack == ACK_YES && !packet.syn)
     {
         *state = ESTABLISHED;
         return true;
     }
-    else if (otherState == LISTEN && packet.ack == ACK_NO && packet.syn)
-    {
-        return true;
-    }
 
-    // todo close connection?
     return false;
 }
 
-bool MatchAndUpdateStateSynRsvd(state_t *state, packet_t packet, state_t otherState)
+bool MatchAndUpdateStateSynRsvd(state_t *state, packet_t packet, state_t *otherState)
 {
     if (*state != SYN_RCVD)
     {
-        // todo error
+        printk(KERN_ERR "Invalid state. expected state SYN_RCVD.\n");
         return false;
     }
-    if (otherState == ESTABLISHED && !packet.syn && !packet.fin)
+    if ((*otherState) != SYN_SENT && (*otherState) != ESTABLISHED)
+    {
+        printk(KERN_ERR "Invalid state. server can be in SYN_RCVD state only when client in SYN_SENT or ESTABLISHED.\n");
+        *state = CLOSED;
+        *otherState = CLOSED;
+        return false;
+    }
+    // resending syn-ack
+    if (*otherState == SYN_SENT && packet.ack == ACK_YES && packet.syn)
+    {
+        return true;
+    }
+    // connection established
+    if (*otherState == ESTABLISHED && !packet.syn && !packet.fin)
     {
         *state = ESTABLISHED;
         return true;
     }
-    if (otherState == SYN_SENT && packet.ack == ACK_YES && packet.syn)
-    {
-        return true;
-    }
+    // active closing connection
     if (packet.fin)
     {
         *state = FIN_WAIT_1;
         return true;
     }
 
-    // todo close connection?
     return false;
 }
 
-bool MatchAndUpdateStateEstablished(state_t *state, packet_t packet, state_t otherState)
+bool MatchAndUpdateStateEstablished(state_t *state, packet_t packet, state_t *otherState)
 {
     if (*state != ESTABLISHED)
     {
-        // todo error
+        printk(KERN_ERR "Invalid state. expected state ESTABLISHED.\n");
         return false;
     }
+    if ((*otherState) != SYN_RCVD && (*otherState) != ESTABLISHED && (*otherState) != FIN_WAIT_1)
+    {
+        printk(KERN_ERR "Invalid state. state can be ESTABLISHED only when the other side  in SYN_RCVD, ESTABLISHED or FIN_WAIT_1.\n");
+        *state = CLOSED;
+        *otherState = CLOSED;
+        return false;
+    }
+    // no packet in this state should be a syn packet
     if (packet.syn)
     {
-        // todo close connection?
         return false;
     }
+    // active close
     if (packet.fin)
     {
         *state = FIN_WAIT_1;
         return true;
     }
-    if (otherState == FIN_WAIT_1 || otherState == FIN_WAIT_2)
+    // passive close
+    if (*otherState == FIN_WAIT_1 && packet.ack == ACK_YES)
     {
         *state = CLOSE_WAIT;
+        if (packet.fin)
+        {
+            *state = LAST_ACK;
+        }
         return true;
     }
     return true;
 }
 
-bool MatchAndUpdateStateFinWait1(state_t *state, packet_t packet, state_t otherState)
+
+bool MatchAndUpdateStateFinWait1(state_t *state, packet_t packet, state_t *otherState)
 {
     if (*state != FIN_WAIT_1)
     {
-        // todo error
+        printk(KERN_ERR "Invalid state. expected state FIN_WAIT_1.\n");
         return false;
     }
+    if ((*otherState) == LISTEN)
+    {
+        printk(KERN_ERR "Invalid state. state can't be FIN_WAIT_1 when the other side in LISTEN.\n");
+        *state = CLOSED;
+        *otherState = CLOSED;
+        return false;
+    }
+    // no packet in this state should be a syn packet
     if (packet.syn)
     {
-        // todo close connection?
         return false;
     }
+    // resending fin
     if (packet.fin)
     {
         return true;
     }
-    if (otherState == FIN_WAIT_1 && packet.ack == ACK_YES)
+    // todo change to one closing state
+    if (*otherState == FIN_WAIT_1 && packet.ack == ACK_YES)
     {
         *state = CLOSING;
         return true;
     }
-    if ((otherState == CLOSING || otherState == TIME_WAIT || otherState == LAST_ACK) && packet.ack == ACK_YES)
+    if ((*otherState == CLOSING || *otherState == TIME_WAIT || *otherState == LAST_ACK) && packet.ack == ACK_YES)
     {
         *state = TIME_WAIT;
         return true;
     }
-    // todo handle other in CLOSE_WAIT
-    // todo close connection?
+
     return false;
 }
 
+bool MatchAndUpdateStateCloseWait(state_t *state, packet_t packet, state_t *otherState)
+{
+    if (*state != CLOSE_WAIT)
+    {
+        printk(KERN_ERR "Invalid state. expected state CLOSE_WAIT.\n");
+        return false;
+    }
+    if ((*otherState) != FIN_WAIT_1 && (*otherState) != FIN_WAIT_2)
+    {
+        printk(KERN_ERR "Invalid state. state can be CLOSE_WAIT only when the other side in FIN_WAIT.\n");
+        *state = CLOSED;
+        *otherState = CLOSED;
+        return false;
+    }
+    // no packet in this state should be a syn packet
+    if (packet.syn)
+    {
+        return false;
+    }
+    // closing todo change last_ack to close
+    if (packet.fin)
+    {
+        *state = LAST_ACK;
+        return true;
+    }
+
+    return false;
+}
+
+// todo remove fin_wait_2
 bool MatchAndUpdateStateFinWait2(state_t *state, packet_t packet, state_t otherState)
 {
     if (*state != FIN_WAIT_2)
@@ -321,23 +392,12 @@ bool MatchAndUpdateStateTimeWait(state_t *state, packet_t packet, state_t otherS
     return false;
 }
 
-bool MatchAndUpdateStateCloseWait(state_t *state, packet_t packet, state_t otherState)
-{
-    if (packet.fin)
-    {
-        *state = LAST_ACK;
-        return true;
-    }
-    // todo close connection?
-    return false;
-}
-
 bool MatchAndUpdateStateCloseLastAck(state_t *state, packet_t packet, state_t otherState)
 {
     return false;
 }
 
-bool MatchAndUpdateState(state_t *state, packet_t packet, state_t otherState)
+bool MatchAndUpdateState(state_t *state, packet_t packet, state_t *otherState)
 {
     switch (*state)
     {
@@ -388,7 +448,7 @@ int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManage
         if (MatchPacketToConnection(packet, connectionRecord->connection, &isClient))
         {
             state_t *state = isClient ? &connectionRecord->connection.cState : &connectionRecord->connection.sState;
-            state_t otherState = isClient ? connectionRecord->connection.sState : connectionRecord->connection.cState;
+            state_t *otherState = isClient ? &connectionRecord->connection.sState : &connectionRecord->connection.cState;
             if (MatchAndUpdateState(state, packet, otherState))
             {
                 connectionRecord->timestamp = ktime_get_real();
