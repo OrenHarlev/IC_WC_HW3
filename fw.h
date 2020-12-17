@@ -44,16 +44,19 @@ typedef enum {
 #define OUT_NET_DEVICE_NAME			"eth2"
 
 // auxiliary values, for your convenience
-#define IP_VERSION		(4)
-#define PORT_ANY		(0)
-#define IP_ANY		    (0)
-#define PORT_ABOVE_1023	(1023)
-#define MAX_RULES		(50)
-#define MAX_RULE_NAME   (20)
-#define RULE_ARGS       (11)
-#define IP_BITS         (32)
-#define LB_MSByte       (127)
-#define LB_MASK         (8)
+#define IP_VERSION       (4)
+#define PORT_ANY         (0)
+#define IP_ANY           (0)
+#define PORT_ABOVE_1023  (1023)
+#define MAX_RULES        (50)
+#define MAX_RULE_NAME    (20)
+#define RULE_ARGS        (11)
+#define IP_BITS          (32)
+#define LB_MSByte        (127)
+#define LB_MASK          (8)
+#define PORT_FTP_DATA    (20)
+#define PORT_FTP_CONTROL (21)
+#define PORT_HTTP        (80)
 
 // device minor numbers, for your convenience
 typedef enum {

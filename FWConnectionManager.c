@@ -10,7 +10,7 @@
 #include "fw.h"
 #include "FWConnectionManager.h"
 
-#define CONNECTION_ROW_MAX_PRINT_SIZE (128)
+#define CONNECTION_EXPIRATION_TIME_SEC 600
 
 typedef enum
 {
@@ -40,13 +40,20 @@ typedef struct
 typedef struct
 {
     connection_t connection;
+    ktime_t timestamp;
     struct klist_node node;
 } ConnectionRecord;
 
 struct ConnectionList
 {
+    ktime_t connectionTimeout;
     struct klist *list;
 };
+
+bool IsClosed(connection_t connection)
+{
+    return connection.cState == CLOSED && connection.sState == CLOSED;
+}
 
 ConnectionManager CreateConnectionManager(void)
 {
@@ -64,11 +71,14 @@ ConnectionManager CreateConnectionManager(void)
     }
 
     klist_init(connectionManager->list, NULL, NULL);
-    connectionManager->nextReadNode = NULL;
-
-    ResetConnectionReader(connectionManager);
+    connectionManager->connectionTimeout = ktime_set(CONNECTION_EXPIRATION_TIME_SEC, 0);
 
     return connectionManager;
+}
+
+bool IsTimedOut(ConnectionManager connectionManager, ktime_t time)
+{
+    return ktime_after(ktime_get_real(), ktime_add(time, connectionManager->connectionTimeout));
 }
 
 void RemoveConnection(ConnectionRecord *connectionRecord)
@@ -142,19 +152,14 @@ bool MatchPacketToConnection(packet_t packet, connection_t connection, bool *isC
 
 int AddConnection(ConnectionManager connectionManager, packet_t packet)
 {
-    // todo handle case were connection exist
-
     ConnectionRecord *connectionRecord = kmalloc(sizeof(ConnectionRecord), GFP_KERNEL);
-    if (connectionRecord == NULL)
-    {
-        // todo error
-        return -1;
-    }
 
     UpdateConnectionFromClientPacket(&connectionRecord->connection, packet);
 
     connectionRecord->connection.cState = SYN_SENT;
     connectionRecord->connection.sState = LISTEN;
+
+    connectionRecord->timestamp = ktime_get_real();
 
     klist_add_head(&connectionRecord->node, connectionManager->list);
 
@@ -165,7 +170,7 @@ bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t otherSta
 {
     if (*state != LISTEN)
     {
-        // todo error
+        printk(KERN_ERR "Invalid state. expected state LISTEN.\n");
         return false;
     }
     if (otherState != SYN_SENT)
@@ -371,16 +376,24 @@ int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManage
     {
         bool isClient;
         ConnectionRecord *connectionRecord = container_of(listNode, ConnectionRecord, node);
+
+        // If connection is not active, remove it.
+        if (IsTimedOut(connectionManager, connectionRecord->timestamp) || IsClosed(connectionRecord->connection))
+        {
+            RemoveConnection(connectionRecord);
+            continue;
+        }
+
+
         if (MatchPacketToConnection(packet, connectionRecord->connection, &isClient))
         {
             state_t *state = isClient ? &connectionRecord->connection.cState : &connectionRecord->connection.sState;
             state_t otherState = isClient ? connectionRecord->connection.sState : connectionRecord->connection.cState;
             if (MatchAndUpdateState(state, packet, otherState))
             {
+                connectionRecord->timestamp = ktime_get_real();
                 logRow->action = NF_ACCEPT;
                 logRow->reason = REASON_ACTIVE_CONNECTION;
-                // todo remove if connection closed.
-                // todo update matching connection.
             }
             else
             {
@@ -393,9 +406,18 @@ int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManage
         }
     }
 
+    // If it is a syn packet, adding a new connection to the table
+    if (packet.syn && packet.ack == ACK_NO)
+    {
+        AddConnection(connectionManager, packet);
+    }
+    else // no matching connection
+    {
+        logRow->action = NF_DROP;
+        logRow->reason = REASON_NO_MATCHING_CONNECTION;
+    }
+
     klist_iter_exit(&iterator);
-    logRow->action = NF_DROP;
-    logRow->reason = REASON_NO_MATCHING_CONNECTION;
     return logRow->action;
 }
 
@@ -413,7 +435,8 @@ ssize_t ReadConnections(ConnectionManager connectionManager, char* buff)
 
         offset += snprintf(buff + offset,
                            PAGE_SIZE - offset,
-                           "%pI4h %pI4h %u %u %u %u\n",
+                           "%lld %pI4h %pI4h %u %u %u %u\n",
+                           connectionRecord->timestamp,
                            &connection.cIp,
                            &connection.sIp,
                            connection.cPort,
