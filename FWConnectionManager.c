@@ -90,8 +90,6 @@ void RemoveConnection(ConnectionRecord *connectionRecord)
 
 ssize_t ResetConnections(ConnectionManager connectionManager)
 {
-    connectionManager->nextReadNode = NULL;
-
     struct klist_iter iterator;
     struct klist_node *listNode;
     klist_iter_init(connectionManager->list, &iterator);
@@ -290,9 +288,9 @@ bool MatchAndUpdateStateEstablished(state_t *state, packet_t packet, state_t *ot
         printk(KERN_ERR "Invalid state. expected state ESTABLISHED.\n");
         return false;
     }
-    if ((*otherState) != SYN_RCVD && (*otherState) != ESTABLISHED && (*otherState) != FIN_WAIT_1)
+    if ((*otherState) != SYN_RCVD && (*otherState) != ESTABLISHED && (*otherState) != FIN_WAIT)
     {
-        printk(KERN_ERR "Invalid state. state can be ESTABLISHED only when the other side  in SYN_RCVD, ESTABLISHED or FIN_WAIT_1.\n");
+        printk(KERN_ERR "Invalid state. state can be ESTABLISHED only when the other side  in SYN_RCVD, ESTABLISHED or FIN_WAIT.\n");
         *state = CLOSED;
         *otherState = CLOSED;
         return false;
@@ -403,6 +401,7 @@ bool MatchAndUpdateState(state_t *state, packet_t packet, state_t *otherState)
         case CLOSED:
             return false;
     }
+    return false;
 }
 
 int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManager, log_row_t *logRow)
