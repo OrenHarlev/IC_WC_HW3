@@ -6,6 +6,7 @@
 
 #include "fw.h"
 #include "FWRuleManager.h"
+#include "FWConnectionManager.h"
 #include "FWLogger.h"
 
 int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, RuleManager ruleManager, ConnectionManager connectionManager, Logger logger);

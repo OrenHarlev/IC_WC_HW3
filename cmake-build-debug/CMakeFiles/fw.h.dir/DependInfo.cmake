@@ -4,14 +4,14 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "C:/Users/orenr/CLionProjects/IC_WC_HW3/FWLogger.c" "C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/fw.h.dir/FWLogger.c.obj"
-  "C:/Users/orenr/CLionProjects/IC_WC_HW3/FWModule.c" "C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/fw.h.dir/FWModule.c.obj"
-  "C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketMatcher.c" "C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/fw.h.dir/FWPacketMatcher.c.obj"
-  "C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketParser.c" "C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/fw.h.dir/FWPacketParser.c.obj"
-  "C:/Users/orenr/CLionProjects/IC_WC_HW3/FWRuleManager.c" "C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/fw.h.dir/FWRuleManager.c.obj"
-  "C:/Users/orenr/CLionProjects/IC_WC_HW3/FWStateManager.c" "C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/fw.h.dir/FWStateManager.c.obj"
+  "/home/student/CLionProjects/IC_WC_HW4/FWConnectionManager.c" "/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/CMakeFiles/fw.h.dir/FWConnectionManager.c.o"
+  "/home/student/CLionProjects/IC_WC_HW4/FWLogger.c" "/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/CMakeFiles/fw.h.dir/FWLogger.c.o"
+  "/home/student/CLionProjects/IC_WC_HW4/FWModule.c" "/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/CMakeFiles/fw.h.dir/FWModule.c.o"
+  "/home/student/CLionProjects/IC_WC_HW4/FWPacketMatcher.c" "/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/CMakeFiles/fw.h.dir/FWPacketMatcher.c.o"
+  "/home/student/CLionProjects/IC_WC_HW4/FWPacketParser.c" "/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/CMakeFiles/fw.h.dir/FWPacketParser.c.o"
+  "/home/student/CLionProjects/IC_WC_HW4/FWRuleManager.c" "/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/CMakeFiles/fw.h.dir/FWRuleManager.c.o"
   )
-set(CMAKE_C_COMPILER_ID "MSVC")
+set(CMAKE_C_COMPILER_ID "GNU")
 
 # The include file search paths:
 set(CMAKE_C_TARGET_INCLUDE_PATH

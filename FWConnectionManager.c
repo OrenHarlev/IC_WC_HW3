@@ -165,7 +165,7 @@ void AddConnection(ConnectionManager connectionManager, packet_t packet)
     klist_add_head(&connectionRecord->node, connectionManager->list);
 }
 
-int ParseConnection(char* rawConnection, packet_t *packet)
+int ParseConnection(const char* rawConnection, packet_t *packet)
 {
     int res = sscanf(rawConnection,
                      "%u %u %u %u",
@@ -183,7 +183,7 @@ int ParseConnection(char* rawConnection, packet_t *packet)
     return 0;
 }
 
-ssize_t AddRawConnection(char *rawPacket, size_t count, ConnectionManager connectionManager)
+ssize_t AddRawConnection(const char *rawPacket, size_t count, ConnectionManager connectionManager)
 {
     packet_t packet;
     if (ParseConnection(rawPacket, &packet) != 0)
