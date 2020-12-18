@@ -12,7 +12,7 @@ void FreeConnectionManager(ConnectionManager connectionManager);
 
 ssize_t ReadConnections(ConnectionManager connectionManager, char* buff);
 
-int AddConnection(ConnectionManager connectionManager, packet_t packet);
+ssize_t AddRawConnection(char *rawPacket, size_t count, ConnectionManager connectionManager);
 
 int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManager, log_row_t *logRow);
 

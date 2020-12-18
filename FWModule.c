@@ -124,7 +124,7 @@ ssize_t ConnectionDisplay(struct device *dev, struct device_attribute *attr, cha
 
 ssize_t ConnectionModify(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
 {
-    // todo add connection from buff
+    return AddRawConnection(buf, count, connectionManager);
 }
 
 static DEVICE_ATTR(rules, S_IWUSR | S_IRUGO, RulesDisplay, RulesModify);

@@ -11,6 +11,7 @@
 #include "FWConnectionManager.h"
 
 #define CONNECTION_EXPIRATION_TIME_SEC 600
+#define CONNECTION_IDENTIFIER_SIZE 4
 
 typedef enum
 {
@@ -18,13 +19,13 @@ typedef enum
     SYN_RCVD,
     SYN_SENT,
     ESTABLISHED,
-    FIN_WAIT_1,
-    FIN_WAIT_2,
-    CLOSING,
-    TIME_WAIT,
+    FIN_WAIT, // this state includes FIN_WAIT_1 and FIN_WAIT_2 since as a gate-way they are logically the same.
+//  FIN_WAIT_2,
     CLOSE_WAIT,
-    LAST_ACK,
-    CLOSED,
+//  CLOSING,
+//  TIME_WAIT,
+//  LAST_ACK,
+    CLOSED, // CLOSING, TIME_WAIT, LAST_ACK will be considered as CLOSED since we are not expecting more packets from those states
 } state_t;
 
 typedef struct
@@ -150,7 +151,7 @@ bool MatchPacketToConnection(packet_t packet, connection_t connection, bool *isC
     return false;
 }
 
-int AddConnection(ConnectionManager connectionManager, packet_t packet)
+void AddConnection(ConnectionManager connectionManager, packet_t packet)
 {
     ConnectionRecord *connectionRecord = kmalloc(sizeof(ConnectionRecord), GFP_KERNEL);
 
@@ -162,8 +163,36 @@ int AddConnection(ConnectionManager connectionManager, packet_t packet)
     connectionRecord->timestamp = ktime_get_real();
 
     klist_add_head(&connectionRecord->node, connectionManager->list);
+}
+
+int ParseConnection(char* rawConnection, packet_t *packet)
+{
+    int res = sscanf(rawConnection,
+                     "%u %u %u %u",
+                     &packet->src_ip,
+                     &packet->dst_ip,
+                     &packet->src_port,
+                     &packet->dst_port);
+
+    if (res != CONNECTION_IDENTIFIER_SIZE)
+    {
+        printk(KERN_ERR "Failed to parse connection. Missing rule args %u out of %u\n", res, CONNECTION_IDENTIFIER_SIZE);
+        return -1;
+    }
 
     return 0;
+}
+
+ssize_t AddRawConnection(char *rawPacket, size_t count, ConnectionManager connectionManager)
+{
+    packet_t packet;
+    if (ParseConnection(rawPacket, &packet) != 0)
+    {
+        printk(KERN_ERR "FW Connection update failed. Failed to parse connection");
+        return -1;
+    }
+    AddConnection(connectionManager, packet);
+    return count;
 }
 
 bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t *otherState)
@@ -180,6 +209,7 @@ bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t *otherSt
         *otherState = CLOSED;
         return false;
     }
+    // sending syn-ack after receiving syn
     if (packet.ack == ACK_YES && packet.syn)
     {
         *state = SYN_RCVD;
@@ -208,7 +238,7 @@ bool MatchAndUpdateStateSynSent(state_t *state, packet_t packet, state_t *otherS
     {
         return true;
     }
-    // last stage of 3-way hand shake
+    // last stage of 3-way hand shake - sending ack after receiving syn-ack
     if (*otherState == SYN_RCVD && packet.ack == ACK_YES && !packet.syn)
     {
         *state = ESTABLISHED;
@@ -243,10 +273,10 @@ bool MatchAndUpdateStateSynRsvd(state_t *state, packet_t packet, state_t *otherS
         *state = ESTABLISHED;
         return true;
     }
-    // active closing connection
+    // active close
     if (packet.fin)
     {
-        *state = FIN_WAIT_1;
+        *state = FIN_WAIT;
         return true;
     }
 
@@ -275,33 +305,32 @@ bool MatchAndUpdateStateEstablished(state_t *state, packet_t packet, state_t *ot
     // active close
     if (packet.fin)
     {
-        *state = FIN_WAIT_1;
+        *state = FIN_WAIT;
         return true;
     }
-    // passive close
-    if (*otherState == FIN_WAIT_1 && packet.ack == ACK_YES)
+    // passive close - sending ack after syn received
+    if (*otherState == FIN_WAIT && packet.ack == ACK_YES)
     {
         *state = CLOSE_WAIT;
         if (packet.fin)
         {
-            *state = LAST_ACK;
+            *state = CLOSED;
         }
         return true;
     }
     return true;
 }
 
-
-bool MatchAndUpdateStateFinWait1(state_t *state, packet_t packet, state_t *otherState)
+bool MatchAndUpdateStateFinWait(state_t *state, packet_t packet, state_t *otherState)
 {
-    if (*state != FIN_WAIT_1)
+    if (*state != FIN_WAIT)
     {
-        printk(KERN_ERR "Invalid state. expected state FIN_WAIT_1.\n");
+        printk(KERN_ERR "Invalid state. expected state FIN_WAIT.\n");
         return false;
     }
     if ((*otherState) == LISTEN)
     {
-        printk(KERN_ERR "Invalid state. state can't be FIN_WAIT_1 when the other side in LISTEN.\n");
+        printk(KERN_ERR "Invalid state. state can't be FIN_WAIT when the other side in LISTEN.\n");
         *state = CLOSED;
         *otherState = CLOSED;
         return false;
@@ -316,15 +345,10 @@ bool MatchAndUpdateStateFinWait1(state_t *state, packet_t packet, state_t *other
     {
         return true;
     }
-    // todo change to one closing state
-    if (*otherState == FIN_WAIT_1 && packet.ack == ACK_YES)
+    // closing - sending ack after syn received
+    if (((*otherState) == FIN_WAIT || (*otherState) == CLOSED ) && packet.ack == ACK_YES)
     {
-        *state = CLOSING;
-        return true;
-    }
-    if ((*otherState == CLOSING || *otherState == TIME_WAIT || *otherState == LAST_ACK) && packet.ack == ACK_YES)
-    {
-        *state = TIME_WAIT;
+        *state = CLOSED;
         return true;
     }
 
@@ -338,9 +362,9 @@ bool MatchAndUpdateStateCloseWait(state_t *state, packet_t packet, state_t *othe
         printk(KERN_ERR "Invalid state. expected state CLOSE_WAIT.\n");
         return false;
     }
-    if ((*otherState) != FIN_WAIT_1 && (*otherState) != FIN_WAIT_2)
+    if ((*otherState) != FIN_WAIT && (*otherState) != CLOSED)
     {
-        printk(KERN_ERR "Invalid state. state can be CLOSE_WAIT only when the other side in FIN_WAIT.\n");
+        printk(KERN_ERR "Invalid state. state can be CLOSE_WAIT only when the other side in FIN_WAIT or CLOSED.\n");
         *state = CLOSED;
         *otherState = CLOSED;
         return false;
@@ -350,50 +374,13 @@ bool MatchAndUpdateStateCloseWait(state_t *state, packet_t packet, state_t *othe
     {
         return false;
     }
-    // closing todo change last_ack to close
+    // closing
     if (packet.fin)
     {
-        *state = LAST_ACK;
+        *state = CLOSED;
         return true;
     }
 
-    return false;
-}
-
-// todo remove fin_wait_2
-bool MatchAndUpdateStateFinWait2(state_t *state, packet_t packet, state_t otherState)
-{
-    if (*state != FIN_WAIT_2)
-    {
-        // todo error
-        return false;
-    }
-    if (packet.syn)
-    {
-        // todo close connection?
-        return false;
-    }
-    if (packet.ack == ACK_YES)
-    {
-        *state = TIME_WAIT;
-        return true;
-    }
-    // todo close connection?
-    return false;
-}
-
-bool MatchAndUpdateStateClosing(state_t *state, packet_t packet, state_t otherState)
-{
-    return false;
-}
-
-bool MatchAndUpdateStateTimeWait(state_t *state, packet_t packet, state_t otherState)
-{
-    return false;
-}
-
-bool MatchAndUpdateStateCloseLastAck(state_t *state, packet_t packet, state_t otherState)
-{
     return false;
 }
 
@@ -409,18 +396,10 @@ bool MatchAndUpdateState(state_t *state, packet_t packet, state_t *otherState)
             return MatchAndUpdateStateSynRsvd(state, packet, otherState);
         case ESTABLISHED:
             return MatchAndUpdateStateEstablished(state, packet, otherState);
-        case FIN_WAIT_1:
-            return MatchAndUpdateStateFinWait1(state, packet, otherState);
-        case FIN_WAIT_2:
-            return MatchAndUpdateStateFinWait2(state, packet, otherState);
-        case CLOSING:
-            return MatchAndUpdateStateClosing(state, packet, otherState);
-        case TIME_WAIT:
-            return MatchAndUpdateStateTimeWait(state, packet, otherState);
+        case FIN_WAIT:
+            return MatchAndUpdateStateFinWait(state, packet, otherState);
         case CLOSE_WAIT:
             return MatchAndUpdateStateCloseWait(state, packet, otherState);
-        case LAST_ACK:
-            return MatchAndUpdateStateCloseLastAck(state, packet, otherState);
         case CLOSED:
             return false;
     }
@@ -444,18 +423,20 @@ int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManage
             continue;
         }
 
-
+        // check if packet match to the connection
         if (MatchPacketToConnection(packet, connectionRecord->connection, &isClient))
         {
             state_t *state = isClient ? &connectionRecord->connection.cState : &connectionRecord->connection.sState;
             state_t *otherState = isClient ? &connectionRecord->connection.sState : &connectionRecord->connection.cState;
+
+            // check if the packet match to the connection state
             if (MatchAndUpdateState(state, packet, otherState))
             {
                 connectionRecord->timestamp = ktime_get_real();
                 logRow->action = NF_ACCEPT;
                 logRow->reason = REASON_ACTIVE_CONNECTION;
             }
-            else
+            else // packet don't match connection state.
             {
                 logRow->action = NF_DROP;
                 logRow->reason = REASON_STATE_DONT_MATCH;
