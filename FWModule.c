@@ -158,7 +158,7 @@ static int __init init(void)
     }
 
     forwardHookOps->hook = (nf_hookfn*)FWHook;
-    forwardHookOps->hooknum = NF_INET_FORWARD;
+    forwardHookOps->hooknum = NF_INET_PRE_ROUTING;
     forwardHookOps->pf = PF_INET;
     forwardHookOps->priority = NF_IP_PRI_FIRST;
 
