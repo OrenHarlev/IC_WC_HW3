@@ -9,6 +9,7 @@ from texttable import Texttable
 RulesPath = "/sys/class/fw/rules/rules"
 LogReadPath = "/dev/fw_log"
 LogResetPath = "/sys/class/fw/log/reset"
+ConnsReadPath = "/sys/class/fw/conns/conns"
 
 #log parsing:
 NumToAction = { 0 : "drop", 1 : "accept" }
@@ -25,6 +26,9 @@ AckToNum = { "no" : 1, "yes" : 2, "any" : 3 }
 
 DirectionToNum = { "in" : 1, "out" : 2, "any" : 3 }
 NumToDirection = { 1 : "in", 2 : "out", 3 : "any" }
+
+ConnToNum = { "LISTENING" : 1, "SYN_SENT" : 2, "SYN_RCVD" : 3, "ESTABLISHED" : 4, "FIN_WAIT" : 5, "CLOSE_WAIT" : 6, "CLOSED" : 7}
+NumToConn = { 1 : "LISTENING", 2 : "SYN_SENT", 3 : "SYN_RCVD", 4 : "ESTABLISHED", 5 : "FIN_WAIT", 6 : "CLOSE_WAIT", 7 : "CLOSED" }
 
 #consts
 RuleArgs = 11
@@ -48,13 +52,13 @@ def RuleRawToPrint(rule):
 
 
 def ReadRules():
-    with open(RulesPath, 'r') as f:
-        rules = f.read()
-    output = Texttable(0)
-    output.add_row(["Name", "Direction", "Drc Ip", "Dst Ip", "Protocol", "Src Port", "Dst Port", "Ack", "Action"])
-    for rule in rules.splitlines():
-        output.add_row(RuleRawToPrint(rule))
-    print(output.draw())
+	with open(RulesPath, 'r') as f:
+		rules = f.read()
+	output = Texttable(0)
+	output.add_row(["Name", "Direction", "Drc Ip", "Dst Ip", "Protocol", "Src Port", "Dst Port", "Ack", "Action"])
+	for rule in rules.splitlines():
+		output.add_row(RuleRawToPrint(rule))
+	print(output.draw())
 
 
 def ParseIp(ip):
@@ -121,25 +125,44 @@ def ReadLog():
 
 
 def ResetLog():
-    with open(LogResetPath, 'w') as f:
-        f.write("reset")
+	with open(LogResetPath, 'w') as f:
+		f.write("reset")
+
+def ConnRawToPrint(conn):
+	conn = conn.split()
+	conn[0] = datetime.datetime.fromtimestamp(int(conn[0]) / 1e9).strftime("%d/%m/%Y, %H:%M:%S")
+	conn[5] = NumToConn[int(conn[5])]
+	conn[6] = NumToConn[int(conn[6])]
+	return conn
+
+
+def ReadConns():
+	with open(ConnsReadPath, 'r') as f:
+		conns = f.read()
+	output = Texttable(0)
+	output.add_row(["Timestamp", "Client Ip", "Server Ip", "Client Port", "Server Port", "Client state", "Server state"])
+	for conn in conns.splitlines():
+		output.add_row(ConnRawToPrint(conn))
+	print(output.draw())
 
 
 
 
 @click.command()
-@click.argument('command', required=True, type=click.Choice(["show_rules", "load_rules", "show_log", "clear_log"]))
+@click.argument('command', required=True, type=click.Choice(["show_rules", "load_rules", "show_log", "clear_log", "show_conns"]))
 @click.argument('rulesfile', required=False, type=click.File('r'))
 def main(command, rulesfile):
-    if command == "show_rules":
-        ReadRules()
-    elif command == "load_rules":
-        LoadRules(rulesfile)
-    elif command == "show_log":
-        ReadLog()
-    elif command == "clear_log":
-        ResetLog()
+	if command == "show_rules":
+		ReadRules()
+	elif command == "load_rules":
+		LoadRules(rulesfile)
+	elif command == "show_log":
+		ReadLog()
+	elif command == "clear_log":
+		ResetLog()
+	elif command == "show_conns":
+		ReadConns()
 
 
 if __name__ == "__main__":
-    main()
+	main()
