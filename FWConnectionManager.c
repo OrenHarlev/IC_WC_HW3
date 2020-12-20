@@ -236,6 +236,11 @@ ssize_t AddRawConnection(const char *rawPacket, size_t count, ConnectionManager 
     return count;
 }
 
+bool IsDeepInspectionPort(__be16 port)
+{
+    return port == PORT_HTTP || port == PORT_FTP_CONTROL || port == PORT_FTP_DATA;
+}
+
 bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t *otherState)
 {
     if (*state != LISTEN)
@@ -244,7 +249,7 @@ bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t *otherSt
         return false;
     }
     // todo remove this condition for deep inspection . consider adding established
-    if (*otherState != SYN_SENT)
+    if (*otherState != SYN_SENT && !IsDeepInspectionPort(packet.src_port))
     {
         printk(KERN_ERR "Invalid state. server can be in LISTEN state only when client in SYN_SEND.\n");
         *state = CLOSED;
@@ -268,7 +273,7 @@ bool MatchAndUpdateStateSynSent(state_t *state, packet_t packet, state_t *otherS
         printk(KERN_ERR "Invalid state. expected state SYN_SENT.\n");
         return false;
     }
-    if ((*otherState) != LISTEN && (*otherState) != SYN_RCVD)
+    if ((*otherState) != LISTEN && (*otherState) != SYN_RCVD && !IsDeepInspectionPort(packet.dst_port))
     {
         printk(KERN_ERR "Invalid state. client can be in SYN_SENT state only when server in LISTEN or SYN_RCVD.\n");
         *state = CLOSED;
@@ -333,7 +338,7 @@ bool MatchAndUpdateStateEstablished(state_t *state, packet_t packet, state_t *ot
         printk(KERN_ERR "Invalid state. expected state ESTABLISHED.\n");
         return false;
     }
-    if ((*otherState) != SYN_RCVD && (*otherState) != ESTABLISHED && (*otherState) != FIN_WAIT)
+    if ((*otherState) != SYN_RCVD && (*otherState) != ESTABLISHED && (*otherState) != FIN_WAIT && !IsDeepInspectionPort(packet.src_port) && !IsDeepInspectionPort(packet.dst_port))
     {
         printk(KERN_ERR "Invalid state. state can be ESTABLISHED only when the other side  in SYN_RCVD, ESTABLISHED or FIN_WAIT.\n");
         *state = CLOSED;
@@ -374,7 +379,7 @@ bool MatchAndUpdateStateFinWait(state_t *state, packet_t packet, state_t *otherS
         printk(KERN_ERR "Invalid state. expected state FIN_WAIT.\n");
         return false;
     }
-    if ((*otherState) == LISTEN)
+    if ((*otherState) == LISTEN && !IsDeepInspectionPort(packet.dst_port))
     {
         printk(KERN_ERR "Invalid state. state can't be FIN_WAIT when the other side in LISTEN.\n");
         *state = CLOSED;
@@ -408,7 +413,7 @@ bool MatchAndUpdateStateCloseWait(state_t *state, packet_t packet, state_t *othe
         printk(KERN_ERR "Invalid state. expected state CLOSE_WAIT.\n");
         return false;
     }
-    if ((*otherState) != FIN_WAIT && (*otherState) != CLOSED)
+    if ((*otherState) != FIN_WAIT && (*otherState) != CLOSED && !IsDeepInspectionPort(packet.src_port) && !IsDeepInspectionPort(packet.dst_port))
     {
         printk(KERN_ERR "Invalid state. state can be CLOSE_WAIT only when the other side in FIN_WAIT or CLOSED.\n");
         *state = CLOSED;
