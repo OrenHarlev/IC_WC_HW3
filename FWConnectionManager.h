@@ -14,6 +14,6 @@ ssize_t ReadConnections(ConnectionManager connectionManager, char* buff);
 
 ssize_t AddRawConnection(const char *rawPacket, size_t count, ConnectionManager connectionManager);
 
-int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManager, log_row_t *logRow);
+unsigned int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManager, log_row_t *logRow);
 
 #endif

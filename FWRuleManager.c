@@ -1,4 +1,5 @@
 #include <linux/kernel.h>
+#include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
 
 #include "FWRuleManager.h"
@@ -236,7 +237,7 @@ bool MatchRule(packet_t packet, rule_t rule)
         (rule.src_ip == IP_ANY || ((packet.src_ip & rule.src_prefix_mask) == (rule.src_ip & rule.src_prefix_mask)));
 }
 
-int MatchPacket(packet_t packet, RuleManager ruleManager, log_row_t *logRow)
+unsigned int MatchPacket(packet_t packet, RuleManager ruleManager, log_row_t *logRow)
 {
     __u8 i = 0;
     for (; i < ruleManager->NumberOfRules; i++)
@@ -250,7 +251,9 @@ int MatchPacket(packet_t packet, RuleManager ruleManager, log_row_t *logRow)
         }
     }
 
-    return NO_MATCHING_RULE;
+    logRow->reason = REASON_NO_MATCHING_RULE;
+    logRow->action = NF_DROP;
+    return logRow->action;
 }
 
 

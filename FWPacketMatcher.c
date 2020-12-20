@@ -21,7 +21,7 @@ bool IsFtpDataSynPacket(packet_t packet)
            packet.syn;
 }
 
-int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, RuleManager ruleManager, ConnectionManager connectionManager, Logger logger)
+unsigned int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, RuleManager ruleManager, ConnectionManager connectionManager, Logger logger)
 {
     packet_t packet;
     bool isXmas;
@@ -47,14 +47,13 @@ int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state,
         return logRow.action;
     }
 
-    int action;
     if (IsTcpNonSynPacket(packet) || IsFtpDataSynPacket(packet))
     {
-        action = MatchAndUpdateConnection(packet, connectionManager, &logRow);
+        MatchAndUpdateConnection(packet, connectionManager, &logRow);
     }
     else
     {
-        action = MatchPacket(packet, ruleManager, &logRow);
+        MatchPacket(packet, ruleManager, &logRow);
 
         // Adding a new connection to the table if not exist
         if (packet.protocol == PROT_TCP && action == NF_ACCEPT)
@@ -63,17 +62,9 @@ int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_state *state,
         }
     }
 
-    if (action != NO_MATCHING_RULE)
-    {
-        LogAction(logRow, logger);
-        return action;
-    }
-
-    // drop by default
-    logRow.reason = REASON_NO_MATCHING_RULE;
-    logRow.action = NF_DROP;
     LogAction(logRow, logger);
 
-    // todo proxy
+    //if (logRow.action == NF_ACCEPT && IsProxyPacket())
+
     return logRow.action;
 }

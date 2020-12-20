@@ -17,6 +17,6 @@ ssize_t UpdateRules(char *rawRulesTable, size_t count, RuleManager ruleManager);
 
 ssize_t GetRawRules(RuleManager ruleManager, char* buff);
 
-int MatchPacket(packet_t packet, RuleManager ruleManager, log_row_t *logRow);
+unsigned int MatchPacket(packet_t packet, RuleManager ruleManager, log_row_t *logRow);
 
 #endif

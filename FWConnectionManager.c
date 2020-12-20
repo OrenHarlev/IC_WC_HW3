@@ -456,7 +456,7 @@ bool MatchAndUpdateState(state_t *state, packet_t packet, state_t *otherState)
     return false;
 }
 
-int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManager, log_row_t *logRow)
+unsigned int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManager, log_row_t *logRow)
 {
     bool isClient;
     ConnectionRecord *connectionRecord = FindConnection(connectionManager, packet, &isClient);
