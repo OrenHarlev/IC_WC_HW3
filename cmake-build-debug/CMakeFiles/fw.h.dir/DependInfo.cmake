@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_CHECK_C
   "C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketMatcher.c" "C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/fw.h.dir/FWPacketMatcher.c.obj"
   "C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketParser.c" "C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/fw.h.dir/FWPacketParser.c.obj"
   "C:/Users/orenr/CLionProjects/IC_WC_HW3/FWRuleManager.c" "C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/fw.h.dir/FWRuleManager.c.obj"
+  "C:/Users/orenr/CLionProjects/IC_WC_HW3/ProxyHelper.c" "C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/CMakeFiles/fw.h.dir/ProxyHelper.c.obj"
   )
 set(CMAKE_C_COMPILER_ID "MSVC")
 

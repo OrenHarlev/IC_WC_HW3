@@ -5,6 +5,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/fw.h.dir/FWPacketMatcher.c.obj"
   "CMakeFiles/fw.h.dir/FWPacketParser.c.obj"
   "CMakeFiles/fw.h.dir/FWRuleManager.c.obj"
+  "CMakeFiles/fw.h.dir/ProxyHelper.c.obj"
   "fw.h.exe"
   "fw.h.exe.manifest"
   "fw.h.lib"

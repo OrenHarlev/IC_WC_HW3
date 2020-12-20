@@ -172,6 +172,25 @@ CMakeFiles\fw.h.dir\FWConnectionManager.c.s: cmake_force
  /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoNUL /FAs /FaCMakeFiles\fw.h.dir\FWConnectionManager.c.s /c C:\Users\orenr\CLionProjects\IC_WC_HW3\FWConnectionManager.c
 <<
 
+CMakeFiles\fw.h.dir\ProxyHelper.c.obj: CMakeFiles\fw.h.dir\flags.make
+CMakeFiles\fw.h.dir\ProxyHelper.c.obj: ..\ProxyHelper.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/fw.h.dir/ProxyHelper.c.obj"
+	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe @<<
+ /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoCMakeFiles\fw.h.dir\ProxyHelper.c.obj /FdCMakeFiles\fw.h.dir\ /FS -c C:\Users\orenr\CLionProjects\IC_WC_HW3\ProxyHelper.c
+<<
+
+CMakeFiles\fw.h.dir\ProxyHelper.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/fw.h.dir/ProxyHelper.c.i"
+	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe > CMakeFiles\fw.h.dir\ProxyHelper.c.i @<<
+ /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E C:\Users\orenr\CLionProjects\IC_WC_HW3\ProxyHelper.c
+<<
+
+CMakeFiles\fw.h.dir\ProxyHelper.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/fw.h.dir/ProxyHelper.c.s"
+	C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\cl.exe @<<
+ /nologo $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) /FoNUL /FAs /FaCMakeFiles\fw.h.dir\ProxyHelper.c.s /c C:\Users\orenr\CLionProjects\IC_WC_HW3\ProxyHelper.c
+<<
+
 # Object files for target fw.h
 fw_h_OBJECTS = \
 "CMakeFiles\fw.h.dir\FWLogger.c.obj" \
@@ -179,7 +198,8 @@ fw_h_OBJECTS = \
 "CMakeFiles\fw.h.dir\FWPacketMatcher.c.obj" \
 "CMakeFiles\fw.h.dir\FWPacketParser.c.obj" \
 "CMakeFiles\fw.h.dir\FWRuleManager.c.obj" \
-"CMakeFiles\fw.h.dir\FWConnectionManager.c.obj"
+"CMakeFiles\fw.h.dir\FWConnectionManager.c.obj" \
+"CMakeFiles\fw.h.dir\ProxyHelper.c.obj"
 
 # External object files for target fw.h
 fw_h_EXTERNAL_OBJECTS =
@@ -190,9 +210,10 @@ fw.h.exe: CMakeFiles\fw.h.dir\FWPacketMatcher.c.obj
 fw.h.exe: CMakeFiles\fw.h.dir\FWPacketParser.c.obj
 fw.h.exe: CMakeFiles\fw.h.dir\FWRuleManager.c.obj
 fw.h.exe: CMakeFiles\fw.h.dir\FWConnectionManager.c.obj
+fw.h.exe: CMakeFiles\fw.h.dir\ProxyHelper.c.obj
 fw.h.exe: CMakeFiles\fw.h.dir\build.make
 fw.h.exe: CMakeFiles\fw.h.dir\objects1.rsp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking C executable fw.h.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking C executable fw.h.exe"
 	"C:\Program Files\JetBrains\CLion 2019.2.4\bin\cmake\win\bin\cmake.exe" -E vs_link_exe --intdir=CMakeFiles\fw.h.dir --rc=C:\PROGRA~2\WI3CF2~1\10\bin\100177~1.0\x86\rc.exe --mt=C:\PROGRA~2\WI3CF2~1\10\bin\100177~1.0\x86\mt.exe --manifests  -- C:\PROGRA~2\MICROS~2\2017\COMMUN~1\VC\Tools\MSVC\1416~1.270\bin\Hostx86\x86\link.exe /nologo @CMakeFiles\fw.h.dir\objects1.rsp @<<
  /out:fw.h.exe /implib:fw.h.lib /pdb:C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\fw.h.pdb /version:0.0  /machine:X86 /debug /INCREMENTAL /subsystem:console kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib 
 <<

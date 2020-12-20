@@ -248,7 +248,6 @@ bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t *otherSt
         printk(KERN_ERR "Invalid state. expected state LISTEN.\n");
         return false;
     }
-    // todo remove this condition for deep inspection . consider adding established
     if (*otherState != SYN_SENT && !IsDeepInspectionPort(packet.src_port))
     {
         printk(KERN_ERR "Invalid state. server can be in LISTEN state only when client in SYN_SEND.\n");
@@ -286,8 +285,7 @@ bool MatchAndUpdateStateSynSent(state_t *state, packet_t packet, state_t *otherS
         return true;
     }
     // last stage of 3-way hand shake - sending ack after receiving syn-ack
-    // todo remove server state validation.
-    if (*otherState == SYN_RCVD && packet.ack == ACK_YES && !packet.syn)
+    if ((*otherState == SYN_RCVD || IsDeepInspectionPort(packet.dst_port)) && packet.ack == ACK_YES && !packet.syn)
     {
         *state = ESTABLISHED;
         return true;
@@ -303,7 +301,7 @@ bool MatchAndUpdateStateSynRsvd(state_t *state, packet_t packet, state_t *otherS
         printk(KERN_ERR "Invalid state. expected state SYN_RCVD.\n");
         return false;
     }
-    if ((*otherState) != SYN_SENT && (*otherState) != ESTABLISHED)
+    if ((*otherState) != SYN_SENT && (*otherState) != ESTABLISHED && !IsDeepInspectionPort(packet.src_port))
     {
         printk(KERN_ERR "Invalid state. server can be in SYN_RCVD state only when client in SYN_SENT or ESTABLISHED.\n");
         *state = CLOSED;
@@ -311,12 +309,12 @@ bool MatchAndUpdateStateSynRsvd(state_t *state, packet_t packet, state_t *otherS
         return false;
     }
     // resending syn-ack
-    if (*otherState == SYN_SENT && packet.ack == ACK_YES && packet.syn)
+    if ((*otherState == SYN_SENT || IsDeepInspectionPort(packet.src_port)) && packet.ack == ACK_YES && packet.syn)
     {
         return true;
     }
     // connection established
-    if (*otherState == ESTABLISHED && !packet.syn && !packet.fin)
+    if ((*otherState == ESTABLISHED || IsDeepInspectionPort(packet.src_port))&& !packet.syn && !packet.fin)
     {
         *state = ESTABLISHED;
         return true;
@@ -353,7 +351,7 @@ bool MatchAndUpdateStateEstablished(state_t *state, packet_t packet, state_t *ot
     // active close
     if (packet.fin)
     {
-        if (*otherState == FIN_WAIT)
+        if (*otherState == FIN_WAIT || *otherState == CLOSED)
         {
             *state = CLOSED;
         }
@@ -397,7 +395,7 @@ bool MatchAndUpdateStateFinWait(state_t *state, packet_t packet, state_t *otherS
         return true;
     }
     // closing - sending ack after syn received
-    if (((*otherState) == FIN_WAIT || (*otherState) == CLOSED ) && packet.ack == ACK_YES)
+    if (((*otherState) == FIN_WAIT || (*otherState) == CLOSED || IsDeepInspectionPort(packet.dst_port) || IsDeepInspectionPort(packet.src_port)) && packet.ack == ACK_YES)
     {
         *state = CLOSED;
         return true;
@@ -435,6 +433,7 @@ bool MatchAndUpdateStateCloseWait(state_t *state, packet_t packet, state_t *othe
     return false;
 }
 
+// todo change to use connectionRecord
 bool MatchAndUpdateState(state_t *state, packet_t packet, state_t *otherState)
 {
     switch (*state)

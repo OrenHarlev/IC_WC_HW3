@@ -115,6 +115,12 @@
 		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWRuleManager.h">
 			<Option target="fw.h"/>
 		</Unit>
+		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/ProxyHelper.c">
+			<Option target="fw.h"/>
+		</Unit>
+		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/ProxyHelper.h">
+			<Option target="fw.h"/>
+		</Unit>
 		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

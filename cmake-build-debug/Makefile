@@ -286,6 +286,33 @@ FWRuleManager.c.s:
 	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\FWRuleManager.c.s
 .PHONY : FWRuleManager.c.s
 
+ProxyHelper.obj: ProxyHelper.c.obj
+
+.PHONY : ProxyHelper.obj
+
+# target to build an object file
+ProxyHelper.c.obj:
+	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\ProxyHelper.c.obj
+.PHONY : ProxyHelper.c.obj
+
+ProxyHelper.i: ProxyHelper.c.i
+
+.PHONY : ProxyHelper.i
+
+# target to preprocess a source file
+ProxyHelper.c.i:
+	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\ProxyHelper.c.i
+.PHONY : ProxyHelper.c.i
+
+ProxyHelper.s: ProxyHelper.c.s
+
+.PHONY : ProxyHelper.s
+
+# target to generate assembly for a file
+ProxyHelper.c.s:
+	$(MAKE) -f CMakeFiles\fw.h.dir\build.make /nologo -$(MAKEFLAGS) CMakeFiles\fw.h.dir\ProxyHelper.c.s
+.PHONY : ProxyHelper.c.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -313,6 +340,9 @@ help:
 	@echo ... FWRuleManager.obj
 	@echo ... FWRuleManager.i
 	@echo ... FWRuleManager.s
+	@echo ... ProxyHelper.obj
+	@echo ... ProxyHelper.i
+	@echo ... ProxyHelper.s
 .PHONY : help
 
 
