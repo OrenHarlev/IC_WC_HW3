@@ -140,7 +140,7 @@ def ReadConns():
 	with open(ConnsReadPath, 'r') as f:
 		conns = f.read()
 	output = Texttable(0)
-	output.add_row(["Timestamp", "Client Ip", "Server Ip", "Client Port", "Server Port", "Client state", "Server state"])
+	output.add_row(["Timestamp", "Client Ip", "Server Ip", "Client Port", "Server Port", "Client state", "Server state", "Deep Inspection port"])
 	for conn in conns.splitlines():
 		output.add_row(ConnRawToPrint(conn))
 	print(output.draw())

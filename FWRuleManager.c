@@ -164,7 +164,7 @@ int ParseRule(char* rawRule, rule_t *rule)
 ssize_t UpdateRules(char *rawRulesTable, size_t count, RuleManager ruleManager)
 {
     __u8 ruleNumber = 0;
-    rule_t tempTable[MAX_RULES];
+    rule_t *tempTable = kmalloc(sizeof(rule_t) * MAX_RULES, GFP_KERNEL);
 
     char *rule;
     while (((rule = strsep(&rawRulesTable, "\n")) != NULL))
@@ -178,12 +178,14 @@ ssize_t UpdateRules(char *rawRulesTable, size_t count, RuleManager ruleManager)
         if (ruleNumber > MAX_RULES)
         {
             printk(KERN_ERR "FW Rules update failed. Too many rules, max rules number is %u\n", MAX_RULES);
+            kfree(tempTable);
             return -1;
         }
 
         if (ParseRule(rule, tempTable + (ruleNumber - 1)) != 0)
         {
             printk(KERN_ERR "FW Rules update failed. Failed to parse rule number %u\n", ruleNumber);
+            kfree(tempTable);
             return -1;
         }
     }
@@ -192,6 +194,7 @@ ssize_t UpdateRules(char *rawRulesTable, size_t count, RuleManager ruleManager)
     ruleManager->NumberOfRules = ruleNumber;
 
     printk(KERN_INFO "FW Rules update succeeded. Number of rules - %u\n", ruleNumber);
+    kfree(tempTable);
     return count;
 }
 

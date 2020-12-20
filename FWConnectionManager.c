@@ -11,7 +11,7 @@
 #include "FWConnectionManager.h"
 
 #define CONNECTION_EXPIRATION_TIME_SEC 600
-#define CONNECTION_IDENTIFIER_SIZE 4
+#define CONNECTION_IDENTIFIER_SIZE 5
 
 typedef enum
 {
@@ -41,6 +41,7 @@ typedef struct
 typedef struct
 {
     connection_t connection;
+    __be16 deepInspectionPort;
     ktime_t timestamp;
     struct klist_node node;
 } ConnectionRecord;
@@ -149,28 +150,69 @@ bool MatchPacketToConnection(packet_t packet, connection_t connection, bool *isC
     return false;
 }
 
-void AddConnection(ConnectionManager connectionManager, packet_t packet)
+ConnectionRecord* FindConnection(ConnectionManager connectionManager, packet_t packet, bool *isClient)
 {
-    ConnectionRecord *connectionRecord = kmalloc(sizeof(ConnectionRecord), GFP_KERNEL);
+    struct klist_iter iterator;
+    struct klist_node *listNode;
+    klist_iter_init(connectionManager->list, &iterator);
 
-    UpdateConnectionFromClientPacket(&connectionRecord->connection, packet);
+    while((listNode = klist_next(&iterator)) != NULL)
+    {
+        ConnectionRecord *connectionRecord = container_of(listNode, ConnectionRecord, node);
 
-    connectionRecord->connection.cState = SYN_SENT;
-    connectionRecord->connection.sState = LISTEN;
+        // If connection is not active, remove it.
+        if (IsTimedOut(connectionManager, connectionRecord->timestamp) || IsClosed(connectionRecord->connection))
+        {
+            RemoveConnection(connectionRecord);
+            continue;
+        }
 
-    connectionRecord->timestamp = ktime_get_real();
-
-    klist_add_head(&connectionRecord->node, connectionManager->list);
+        // check if packet match to the connection
+        if (MatchPacketToConnection(packet, connectionRecord->connection, isClient))
+        {
+            klist_iter_exit(&iterator);
+            return connectionRecord;
+        }
+    }
+    klist_iter_exit(&iterator);
+    return NULL;
 }
 
-int ParseConnection(const char* rawConnection, packet_t *packet)
+void AddConnection(ConnectionManager connectionManager, packet_t packet, __be16 deepInspectionPort)
+{
+    ConnectionRecord *connectionRecord;
+    bool isClient; // not used in this function.
+    if (deepInspectionPort == 0)
+    {
+        connectionRecord = kmalloc(sizeof(ConnectionRecord), GFP_KERNEL);
+        klist_add_head(&connectionRecord->node, connectionManager->list);
+        UpdateConnectionFromClientPacket(&connectionRecord->connection, packet);
+        connectionRecord->connection.cState = SYN_SENT;
+        connectionRecord->connection.sState = LISTEN;
+    }
+    else
+    {
+        connectionRecord = FindConnection(connectionManager, packet, &isClient);
+        if (connectionRecord == NULL)
+        {
+            printk(KERN_ERR "Failed to update deep inspection port, connection not in table.\n");
+            return;
+        }
+    }
+
+    connectionRecord->timestamp = ktime_get_real();
+    connectionRecord->deepInspectionPort = deepInspectionPort;
+}
+
+int ParseConnection(const char* rawConnection, packet_t *packet, __be16 *deepInspectionPort)
 {
     int res = sscanf(rawConnection,
-                     "%u %u %u %u",
+                     "%u %u %u %u %u",
                      &packet->src_ip,
                      &packet->dst_ip,
                      &packet->src_port,
-                     &packet->dst_port);
+                     &packet->dst_port,
+                     deepInspectionPort);
 
     if (res != CONNECTION_IDENTIFIER_SIZE)
     {
@@ -184,12 +226,13 @@ int ParseConnection(const char* rawConnection, packet_t *packet)
 ssize_t AddRawConnection(const char *rawPacket, size_t count, ConnectionManager connectionManager)
 {
     packet_t packet;
-    if (ParseConnection(rawPacket, &packet) != 0)
+    __be16 deepInspectionPort;
+    if (ParseConnection(rawPacket, &packet, &deepInspectionPort) != 0)
     {
         printk(KERN_ERR "FW Connection update failed. Failed to parse connection");
         return -1;
     }
-    AddConnection(connectionManager, packet);
+    AddConnection(connectionManager, packet, deepInspectionPort);
     return count;
 }
 
@@ -200,6 +243,7 @@ bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t *otherSt
         printk(KERN_ERR "Invalid state. expected state LISTEN.\n");
         return false;
     }
+    // todo remove this condition for deep inspection . consider adding established
     if (*otherState != SYN_SENT)
     {
         printk(KERN_ERR "Invalid state. server can be in LISTEN state only when client in SYN_SEND.\n");
@@ -237,6 +281,7 @@ bool MatchAndUpdateStateSynSent(state_t *state, packet_t packet, state_t *otherS
         return true;
     }
     // last stage of 3-way hand shake - sending ack after receiving syn-ack
+    // todo remove server state validation.
     if (*otherState == SYN_RCVD && packet.ack == ACK_YES && !packet.syn)
     {
         *state = ESTABLISHED;
@@ -409,58 +454,41 @@ bool MatchAndUpdateState(state_t *state, packet_t packet, state_t *otherState)
 
 int MatchAndUpdateConnection(packet_t packet, ConnectionManager connectionManager, log_row_t *logRow)
 {
-    struct klist_iter iterator;
-    struct klist_node *listNode;
-    klist_iter_init(connectionManager->list, &iterator);
+    bool isClient;
+    ConnectionRecord *connectionRecord = FindConnection(connectionManager, packet, &isClient);
 
-    while((listNode = klist_next(&iterator)) != NULL)
+    if (connectionRecord != NULL) // found matching connection
     {
-        bool isClient;
-        ConnectionRecord *connectionRecord = container_of(listNode, ConnectionRecord, node);
+        state_t *state = isClient ? &connectionRecord->connection.cState : &connectionRecord->connection.sState;
+        state_t *otherState = isClient ? &connectionRecord->connection.sState : &connectionRecord->connection.cState;
 
-        // If connection is not active, remove it.
-        if (IsTimedOut(connectionManager, connectionRecord->timestamp) || IsClosed(connectionRecord->connection))
+        // check if the packet match to the connection state
+        if (MatchAndUpdateState(state, packet, otherState))
         {
-            RemoveConnection(connectionRecord);
-            continue;
+            connectionRecord->timestamp = ktime_get_real();
+            logRow->action = NF_ACCEPT;
+            logRow->reason = REASON_ACTIVE_CONNECTION;
         }
-
-        // check if packet match to the connection
-        if (MatchPacketToConnection(packet, connectionRecord->connection, &isClient))
+        else // packet don't match connection state.
         {
-            state_t *state = isClient ? &connectionRecord->connection.cState : &connectionRecord->connection.sState;
-            state_t *otherState = isClient ? &connectionRecord->connection.sState : &connectionRecord->connection.cState;
-
-            // check if the packet match to the connection state
-            if (MatchAndUpdateState(state, packet, otherState))
-            {
-                connectionRecord->timestamp = ktime_get_real();
-                logRow->action = NF_ACCEPT;
-                logRow->reason = REASON_ACTIVE_CONNECTION;
-            }
-            else // packet don't match connection state.
-            {
-                logRow->action = NF_DROP;
-                logRow->reason = REASON_STATE_DONT_MATCH;
-            }
-
-            klist_iter_exit(&iterator);
-            return logRow->action;
+            logRow->action = NF_DROP;
+            logRow->reason = REASON_STATE_DONT_MATCH;
+        }
+    }
+    else
+    {
+        // If it is a syn packet, adding a new connection to the table
+        if (packet.syn && packet.ack == ACK_NO)
+        {
+            AddConnection(connectionManager, packet, 0);
+        }
+        else // no matching connection
+        {
+            logRow->action = NF_DROP;
+            logRow->reason = REASON_NO_MATCHING_CONNECTION;
         }
     }
 
-    // If it is a syn packet, adding a new connection to the table
-    if (packet.syn && packet.ack == ACK_NO)
-    {
-        AddConnection(connectionManager, packet);
-    }
-    else // no matching connection
-    {
-        logRow->action = NF_DROP;
-        logRow->reason = REASON_NO_MATCHING_CONNECTION;
-    }
-
-    klist_iter_exit(&iterator);
     return logRow->action;
 }
 
@@ -478,14 +506,15 @@ ssize_t ReadConnections(ConnectionManager connectionManager, char* buff)
 
         offset += snprintf(buff + offset,
                            PAGE_SIZE - offset,
-                           "%lld %pI4h %pI4h %u %u %u %u\n",
+                           "%lld %pI4h %pI4h %u %u %u %u %u\n",
                            connectionRecord->timestamp,
                            &connection.cIp,
                            &connection.sIp,
                            connection.cPort,
                            connection.sPort,
                            connection.cState,
-                           connection.sState);
+                           connection.sState,
+                           connectionRecord->deepInspectionPort);
     }
 
     klist_iter_exit(&iterator);
