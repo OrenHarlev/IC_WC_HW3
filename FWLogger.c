@@ -103,18 +103,19 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
         return 0;
     }
 
-    size_t buffOffset = 0;
-    int logRowSize;
-
     struct klist_iter iterator;
     klist_iter_init_node(logger->list, &iterator, logger->nextReadNode);
 
-    while(length > LOG_ROW_MAX_PRINT_SIZE &&  logger->nextReadNode != NULL)
+    ssize_t buffOffset = 0;
+    ssize_t logRowSize;
+    char logRow[LOG_ROW_MAX_PRINT_SIZE];
+
+    while(logger->nextReadNode != NULL && buffOffset < length)
     {
         LogRecord *logRecord = container_of(logger->nextReadNode, LogRecord, node);
         log_row_t log = logRecord->log;
 
-        logRowSize = snprintf(buff + buffOffset,
+        logRowSize = snprintf(logRow,
                  LOG_ROW_MAX_PRINT_SIZE,
                  "%lld %pI4h %pI4h %u %u %u %u %d %u\n",
                  log.timestamp,
@@ -127,19 +128,17 @@ ssize_t ReadLogs(char* buff, size_t length, Logger logger)
                  log.reason,
                  log.count);
 
-        if (logRowSize < 0)
+        if (buffOffset + logRowSize > length)
         {
-            return -EFAULT;
+            break;
         }
-
+        snprintf(buff + buffOffset, length - buffOffset, logRow);
         buffOffset += logRowSize;
-        length -= logRowSize;
         logger->nextReadNode = klist_next(&iterator);
     }
 
     klist_iter_exit(&iterator);
-
-    return buffOffset == 0 ? 0 : buffOffset + 1;
+    return buffOffset;
 }
 
 int ResetLogReader(Logger logger)

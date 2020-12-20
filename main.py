@@ -18,8 +18,8 @@ ActionToNum = { "drop" : 0, "accept" : 1 }
 NumToProt = { 1 : "icmp", 6 : "tcp", 17 : "udp", 255 : "other", 143 : "any" }
 ProtToNum = {"icmp" : 1, "tcp" : 6, "udp" : 17, "other" : 255, "any" : 143 }
 
-NumToReason = { -1 : "REASON_FW_INACTIVE", -2 : "REASON_NO_MATCHING_RULE", -4 : "REASON_XMAS_PACKET", -6 : "REASON_ILLEGAL_VALUE" }
-ReasonToNum = { "REASON_FW_INACTIVE" : -1, "REASON_NO_MATCHING_RULE" : -2, "REASON_XMAS_PACKET" : -4, "REASON_ILLEGAL_VALUE" : -6 }
+NumToReason = { -1 : "REASON_FW_INACTIVE", -2 : "REASON_NO_MATCHING_RULE", -4 : "REASON_XMAS_PACKET", -8 : "REASON_ILLEGAL_VALUE", -16 : "REASON_NO_MATCHING_CONNECTION", -32 : "REASON_STATE_DONT_MATCH", -64 : "REASON_ACTIVE_CONNECTION" }
+ReasonToNum = { "REASON_FW_INACTIVE" : -1, "REASON_NO_MATCHING_RULE" : -2, "REASON_XMAS_PACKET" : -4, "REASON_ILLEGAL_VALUE" : -8, "REASON_NO_MATCHING_CONNECTION" : -16, "REASON_STATE_DONT_MATCH" : -32, "REASON_ACTIVE_CONNECTION" : -64 }
 
 NumToAck = { 1 : "no", 2 : "yes", 3 : "any" }
 AckToNum = { "no" : 1, "yes" : 2, "any" : 3 }
@@ -144,7 +144,6 @@ def ReadConns():
 	for conn in conns.splitlines():
 		output.add_row(ConnRawToPrint(conn))
 	print(output.draw())
-
 
 
 

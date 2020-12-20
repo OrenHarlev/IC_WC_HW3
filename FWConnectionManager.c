@@ -303,17 +303,20 @@ bool MatchAndUpdateStateEstablished(state_t *state, packet_t packet, state_t *ot
     // active close
     if (packet.fin)
     {
-        *state = FIN_WAIT;
+        if (*otherState == FIN_WAIT)
+        {
+            *state = CLOSED;
+        }
+        else
+        {
+            *state = FIN_WAIT;
+        }
         return true;
     }
     // passive close - sending ack after syn received
     if (*otherState == FIN_WAIT && packet.ack == ACK_YES)
     {
         *state = CLOSE_WAIT;
-        if (packet.fin)
-        {
-            *state = CLOSED;
-        }
         return true;
     }
     return true;

@@ -40,44 +40,44 @@ static struct device* sysfsConnectionsDevice = NULL;
 
 //---------------------------logic---------------------------------
 
-RuleManager ruleManager;
-ConnectionManager connectionManager;
-Logger logger;
+static RuleManager ruleManager;
+static ConnectionManager connectionManager;
+static Logger logger;
 
 //==================== FUNCTIONS ===========================
 
 //---------------------------device---------------------------------
 
-ssize_t LogRead(struct file *filp, char *buff, size_t length, loff_t *offp)
+static ssize_t LogRead(struct file *filp, char *buff, size_t length, loff_t *offp)
 {
-    char logBuff[length];
+    char *logBuff = kmalloc(length, GFP_KERNEL);
+    ssize_t result = 0;
 
     ssize_t logLength = ReadLogs(logBuff, length, logger);
 
     if (logLength < 0)
     {
-        return -EFAULT;
+        result = -EFAULT;
     }
-
-    if (logLength == 0)
+    else if (logLength == 0)
     {
-        return 0;
+        result = 0;
     }
-
-    if (copy_to_user(buff, logBuff, logLength))
+    else
     {
-        return -EFAULT;
+        result = copy_to_user(buff, logBuff, logLength) ? -EFAULT : logLength;
     }
 
-    return logLength;
+    kfree(logBuff);
+    return result;
 }
 
-int LogOpen(struct inode *_inode, struct file *_file)
+static int LogOpen(struct inode *_inode, struct file *_file)
 {
     return ResetLogReader(logger);
 }
 
-int LogClose(struct inode *_inode, struct file *_file)
+static int LogClose(struct inode *_inode, struct file *_file)
 {
     return ResetLogReader(logger);
 }

@@ -11,7 +11,6 @@
 #include <linux/tcp.h>
 #include <linux/udp.h>
 
-
 // the protocols we will work with
 typedef enum {
     PROT_ICMP	= 1,
@@ -20,7 +19,6 @@ typedef enum {
     PROT_OTHER 	= 255,
     PROT_ANY	= 143,
 } prot_t;
-
 
 // various reasons to be registered in each log entry
 typedef enum {
