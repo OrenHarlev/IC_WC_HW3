@@ -67,6 +67,7 @@ unsigned int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_stat
 
     if (logRow.action == NF_ACCEPT)
     {
+        // todo handle error and print if redirected
         RedirectPreRoutPacket(rawPacket, packet);
     }
 

@@ -5,4 +5,4 @@ project(IC_WC_HW3 C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(fw.h FWLogger.c FWLogger.h FWModule.c FWPacketMatcher.c FWPacketMatcher.h FWPacketParser.h FWPacketParser.c FWRuleManager.c FWRuleManager.h FWConnectionManager.c FWConnectionManager.h FWProxyHelper.c FWProxyHelper.h)
+add_executable(module/fw.h module/FWLogger.c module/FWLogger.h module/FWModule.c module/FWPacketMatcher.c module/FWPacketMatcher.h module/FWPacketParser.h module/FWPacketParser.c module/FWRuleManager.c module/FWRuleManager.h module/FWConnectionManager.c module/FWConnectionManager.h module/FWProxyHelper.c module/FWProxyHelper.h)
