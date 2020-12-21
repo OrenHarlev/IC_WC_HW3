@@ -503,9 +503,11 @@ ssize_t ReadConnections(ConnectionManager connectionManager, char* buff)
 bool GetConnectionFromClient(ConnectionManager connectionManager, __be32 cIp, __be16 cPort, connection_t *connection)
 {
     // todo
+    return false;
 }
 
 bool GetConnectionFromServer(ConnectionManager connectionManager, __be32 sIp, __be16 sPort, __be16 deepInspectionPort, connection_t *connection)
 {
     // todo
+    return false;
 }

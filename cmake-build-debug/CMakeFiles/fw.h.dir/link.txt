@@ -1,0 +1,1 @@
+/usr/bin/cc -g   CMakeFiles/fw.h.dir/FWLogger.c.o CMakeFiles/fw.h.dir/FWModule.c.o CMakeFiles/fw.h.dir/FWPacketMatcher.c.o CMakeFiles/fw.h.dir/FWPacketParser.c.o CMakeFiles/fw.h.dir/FWRuleManager.c.o CMakeFiles/fw.h.dir/FWConnectionManager.c.o CMakeFiles/fw.h.dir/FWProxyHelper.c.o  -o fw.h 

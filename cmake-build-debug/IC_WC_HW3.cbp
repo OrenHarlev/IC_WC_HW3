@@ -4,124 +4,120 @@
 	<Project>
 		<Option title="IC_WC_HW3"/>
 		<Option makefile_is_custom="1"/>
-		<Option compiler="msvc8"/>
+		<Option compiler="gcc"/>
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug"/>
+				<Option working_dir="/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 all"/>
-					<CompileFile command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 clean"/>
-					<DistClean command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="fw.h">
-				<Option output="C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/fw.h.exe" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="msvc8"/>
-				<Compiler>
-					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include"/>
-					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include"/>
-					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
-					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
-					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
-					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
-					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 fw.h"/>
-					<CompileFile command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 clean"/>
-					<DistClean command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="fw.h/fast">
-				<Option output="C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug/fw.h.exe" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="msvc8"/>
-				<Compiler>
-					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include"/>
-					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include"/>
-					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
-					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
-					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\um"/>
-					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\winrt"/>
-					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\cppwinrt"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 fw.h/fast"/>
-					<CompileFile command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 clean"/>
-					<DistClean command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="edit_cache">
-				<Option working_dir="C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug"/>
-				<Option type="4"/>
-				<MakeCommands>
-					<Build command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 edit_cache"/>
-					<CompileFile command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 clean"/>
-					<DistClean command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="C:/Users/orenr/CLionProjects/IC_WC_HW3/cmake-build-debug"/>
+				<Option working_dir="/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 clean"/>
-					<DistClean command="nmake /NOLOGO /f C:\Users\orenr\CLionProjects\IC_WC_HW3\cmake-build-debug\Makefile VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="fw.h">
+				<Option output="/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/fw.h" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 fw.h"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="fw.h/fast">
+				<Option output="/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/fw.h" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 fw.h/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWConnectionManager.c">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWConnectionManager.c">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWConnectionManager.h">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWConnectionManager.h">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWLogger.c">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWLogger.c">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWLogger.h">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWLogger.h">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWModule.c">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWModule.c">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketMatcher.c">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWPacketMatcher.c">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketMatcher.h">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWPacketMatcher.h">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketParser.c">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWPacketParser.c">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWPacketParser.h">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWPacketParser.h">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWRuleManager.c">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWProxyHelper.c">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/FWRuleManager.h">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWProxyHelper.h">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/ProxyHelper.c">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWRuleManager.c">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/ProxyHelper.h">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/FWRuleManager.h">
 			<Option target="fw.h"/>
 		</Unit>
-		<Unit filename="C:/Users/orenr/CLionProjects/IC_WC_HW3/CMakeLists.txt">
+		<Unit filename="/home/student/CLionProjects/IC_WC_HW4/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

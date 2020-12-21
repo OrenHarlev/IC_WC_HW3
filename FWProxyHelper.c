@@ -5,6 +5,7 @@
 #include <linux/tcp.h>
 #include <net/tcp.h>
 #include <linux/skbuff.h>
+#include <linux/inet.h>
 #include "FWProxyHelper.h"
 #include "fw.h"
 #include "FWPacketParser.h"
@@ -13,8 +14,8 @@
 int FixChecksum(struct sk_buff *skb)
 {
     struct iphdr *ipHeader = ip_hdr(skb);
-    ip_header->check = 0;
-    ip_header->check = ip_fast_csum((u8 *)ipHeader, ipHeader->ihl);
+    ipHeader->check = 0;
+    ipHeader->check = ip_fast_csum((u8 *)ipHeader, ipHeader->ihl);
 
     skb->ip_summed = CHECKSUM_NONE;
     skb->csum_valid = 0;
@@ -78,6 +79,7 @@ int RedirectPreRoutPacket(struct sk_buff *skb, packet_t packet)
     {
         return TamperPacket(skb, 0, htonl(in_aton(LOCAL_IP)), 0, 0);
     }
+    return 0;
 }
 
 int RedirectLocalOutPacket(struct sk_buff *skb, ConnectionManager connectionManager)
@@ -93,7 +95,7 @@ int RedirectLocalOutPacket(struct sk_buff *skb, ConnectionManager connectionMana
         {
             return TamperPacket(skb, connection.sIp, 0, connection.sPort, 0);
         }
-        return -1;
+        return 0;
     }
     else if (packet.dst_port == PORT_HTTP || packet.dst_port == PORT_FTP_CONTROL)
     {
@@ -101,7 +103,7 @@ int RedirectLocalOutPacket(struct sk_buff *skb, ConnectionManager connectionMana
         {
             return TamperPacket(skb, connection.cIp, 0, 0, 0);
         }
-        return -1;
+        return 0;
     }
-    return -1;
+    return 0;
 }
