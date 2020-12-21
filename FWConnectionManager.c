@@ -10,7 +10,7 @@
 #include "fw.h"
 #include "FWConnectionManager.h"
 
-#define CONNECTION_EXPIRATION_TIME_SEC 600
+#define CONNECTION_EXPIRATION_TIME_SEC 120
 #define CONNECTION_IDENTIFIER_SIZE 5
 
 typedef struct
@@ -500,14 +500,59 @@ ssize_t ReadConnections(ConnectionManager connectionManager, char* buff)
     return offset;
 }
 
+bool MatchClient(__be32 cIp, __be16 cPort, connection_t connection)
+{
+    return connection.cIp == cIp && connection.cPort == cPort;
+}
+
+bool MatchServer(__be32 sIp, __be16 sPort, __be deepInspectionPort, ConnectionRecord *connectionRecord)
+{
+    return connectionRecord->connection.sIp == sIp &&
+           connectionRecord->connection.sPort == sPort &&
+           connectionRecord->deepInspectionPort == deepInspectionPort;
+}
+
+bool GetConnection(ConnectionManager connectionManager, bool isFromServer, __be32 ip, __be16 port, __be16 deepInspectionPort, connection_t *connection)
+{
+    struct klist_iter iterator;
+    struct klist_node *listNode;
+    klist_iter_init(connectionManager->list, &iterator);
+
+    bool result = false;
+    while((listNode = klist_next(&iterator)) != NULL)
+    {
+        ConnectionRecord *connectionRecord = container_of(listNode, ConnectionRecord, node);
+
+        // If connection is not active, remove it.
+        if (IsTimedOut(connectionManager, connectionRecord->timestamp) || IsClosed(connectionRecord->connection))
+        {
+            RemoveConnection(connectionRecord);
+            continue;
+        }
+
+        // check if packet match to the connection
+        bool isMatch = isFromServer ?
+                MatchServer(ip, port, deepInspectionPort, connectionRecord) :
+                MatchClient(ip, deepInspectionPort, connectionRecord->connection);
+
+        if (isMatch)
+        {
+            *connection = connectionRecord->connection;
+            result = true;
+            break;
+        }
+    }
+
+    klist_iter_exit(&iterator);
+    return NULL;
+}
+
 bool GetConnectionFromClient(ConnectionManager connectionManager, __be32 cIp, __be16 cPort, connection_t *connection)
 {
-    // todo
-    return false;
+    return GetConnection(connectionManager, false, cIp, cPort, 0, connection);
 }
 
 bool GetConnectionFromServer(ConnectionManager connectionManager, __be32 sIp, __be16 sPort, __be16 deepInspectionPort, connection_t *connection)
 {
-    // todo
-    return false;
+    return GetConnection(connectionManager, true, sIp, sPort, deepInspectionPort, connection);
 }
