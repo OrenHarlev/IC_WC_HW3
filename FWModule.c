@@ -94,7 +94,7 @@ static struct file_operations LogReadFops =
 
 static unsigned int FWHook(void *priv, struct sk_buff *skb, const struct nf_hook_state *state)
 {
-    action = MatchRawPacket(skb, state, ruleManager, connectionManager, logger);
+    return MatchRawPacket(skb, state, ruleManager, connectionManager, logger);
 }
 
 //------------------------sysfs api--------------------------------

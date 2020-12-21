@@ -40,6 +40,7 @@ typedef enum {
 #define LOOPBACK_NET_DEVICE_NAME	"lo"
 #define IN_NET_DEVICE_NAME			"eth1"
 #define OUT_NET_DEVICE_NAME			"eth2"
+#define LOCAL_IP                    "10.0.2.15"
 
 // auxiliary values, for your convenience
 #define IP_VERSION       (4)
@@ -55,6 +56,9 @@ typedef enum {
 #define PORT_FTP_DATA    (20)
 #define PORT_FTP_CONTROL (21)
 #define PORT_HTTP        (80)
+#define PORT_HTTP_PROXY  (800)
+#define PORT_FTP_PROXY   (210)
+
 
 // device minor numbers, for your convenience
 typedef enum {

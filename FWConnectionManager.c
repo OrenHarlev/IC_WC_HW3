@@ -13,31 +13,6 @@
 #define CONNECTION_EXPIRATION_TIME_SEC 600
 #define CONNECTION_IDENTIFIER_SIZE 5
 
-typedef enum
-{
-    LISTEN = 1,
-    SYN_SENT = 2,
-    SYN_RCVD = 3,
-    ESTABLISHED = 4,
-    FIN_WAIT = 5, // this state includes FIN_WAIT_1 and FIN_WAIT_2 since as a gate-way they are logically the same.
-//  FIN_WAIT_2,
-    CLOSE_WAIT = 6,
-//  CLOSING,
-//  TIME_WAIT,
-//  LAST_ACK,
-    CLOSED = 7, // CLOSING, TIME_WAIT, LAST_ACK will be considered as CLOSED since we are not expecting more packets from those states
-} state_t;
-
-typedef struct
-{
-    __be32	cIp;
-    __be32	sIp;
-    __be16	cPort; 			// number of port or 0 for any or port 1023 for any port number > 1023
-    __be16	sPort; 			// number of port or 0 for any or port 1023 for any port number > 1023
-    state_t cState;
-    state_t sState;
-} connection_t;
-
 typedef struct
 {
     connection_t connection;
@@ -238,7 +213,7 @@ ssize_t AddRawConnection(const char *rawPacket, size_t count, ConnectionManager 
 
 bool IsDeepInspectionPort(__be16 port)
 {
-    return port == PORT_HTTP || port == PORT_FTP_CONTROL || port == PORT_FTP_DATA;
+    return port == PORT_HTTP || port == PORT_FTP_CONTROL;
 }
 
 bool MatchAndUpdateStateListen(state_t *state, packet_t packet, state_t *otherState)
@@ -523,4 +498,14 @@ ssize_t ReadConnections(ConnectionManager connectionManager, char* buff)
 
     klist_iter_exit(&iterator);
     return offset;
+}
+
+bool GetConnectionFromClient(ConnectionManager connectionManager, __be32 cIp, __be16 cPort, connection_t *connection)
+{
+    // todo
+}
+
+bool GetConnectionFromServer(ConnectionManager connectionManager, __be32 sIp, __be16 sPort, __be16 deepInspectionPort, connection_t *connection)
+{
+    // todo
 }

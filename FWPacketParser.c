@@ -77,17 +77,20 @@ int ParsePacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, pa
         return -1;
     }
 
-    *isLoopBack = false;
-    if (ParseDirection(state, parsedPacket, isLoopBack) != 0)
+    if (state != NULL)
     {
-        printk(KERN_INFO "FW Unsupported interface.\n");
-        return -1;
-    }
+        *isLoopBack = false;
+        if (ParseDirection(state, parsedPacket, isLoopBack) != 0)
+        {
+            printk(KERN_INFO "FW Unsupported interface.\n");
+            return -1;
+        }
 
-    if (*isLoopBack)
-    {
-        printk(KERN_INFO "Loop back packet.\n");
-        return -1;
+        if (*isLoopBack)
+        {
+            printk(KERN_INFO "Loop back packet.\n");
+            return -1;
+        }
     }
 
     struct iphdr *ipHeader = ip_hdr(rawPacket);

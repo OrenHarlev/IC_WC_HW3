@@ -7,6 +7,7 @@
 #include "FWRuleManager.h"
 #include "FWConnectionManager.h"
 #include "FWPacketMatcher.h"
+#include "FWProxyHelper.h"
 
 bool IsTcpNonSynPacket(packet_t packet)
 {
@@ -56,7 +57,7 @@ unsigned int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_stat
         MatchPacket(packet, ruleManager, &logRow);
 
         // Adding a new connection to the table if not exist
-        if (packet.protocol == PROT_TCP && action == NF_ACCEPT)
+        if (packet.protocol == PROT_TCP && logRow.action == NF_ACCEPT)
         {
             MatchAndUpdateConnection(packet, connectionManager, &logRow);
         }
@@ -64,7 +65,10 @@ unsigned int MatchRawPacket(struct sk_buff *rawPacket, const struct nf_hook_stat
 
     LogAction(logRow, logger);
 
-    //if (logRow.action == NF_ACCEPT && IsProxyPacket())
+    if (logRow.action == NF_ACCEPT)
+    {
+        RedirectPreRoutPacket(rawPacket, packet);
+    }
 
     return logRow.action;
 }
