@@ -19,6 +19,7 @@
 #include "FWRuleManager.h"
 #include "FWConnectionManager.h"
 #include "FWLogger.h"
+#include "FWProxyHelper.h"
 
 
 //================== GLOBALS AND MACROS ===========================
@@ -28,7 +29,8 @@ MODULE_AUTHOR("Oren Harlev");
 
 //------------------------netfilter--------------------------------
 
-static struct nf_hook_ops *forwardHookOps = NULL;
+static struct nf_hook_ops *preRoutHookOps = NULL;
+static struct nf_hook_ops *localOutHookOps = NULL;
 
 //---------------------------sysfs-device---------------------------------
 
@@ -92,9 +94,14 @@ static struct file_operations LogReadFops =
 
 //------------------------netfilter hooks--------------------------------
 
-static unsigned int FWHook(void *priv, struct sk_buff *skb, const struct nf_hook_state *state)
+static unsigned int FWPreRoutHook(void *priv, struct sk_buff *skb, const struct nf_hook_state *state)
 {
     return MatchRawPacket(skb, state, ruleManager, connectionManager, logger);
+}
+
+static unsigned int FWLocalOutHook(void *priv, struct sk_buff *skb, const struct nf_hook_state *state)
+{
+    return RedirectLocalOutPacket(skb, connectionManager);
 }
 
 //------------------------sysfs api--------------------------------
@@ -147,8 +154,8 @@ static int __init init(void)
         return -1;
     }
 
-    forwardHookOps = (struct nf_hook_ops*)kcalloc(1, sizeof(struct nf_hook_ops), GFP_KERNEL);
-    if (forwardHookOps == NULL)
+    preRoutHookOps = (struct nf_hook_ops*)kcalloc(1, sizeof(struct nf_hook_ops), GFP_KERNEL);
+    if (preRoutHookOps == NULL)
     {
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
@@ -157,15 +164,44 @@ static int __init init(void)
         return -1;
     }
 
-    forwardHookOps->hook = (nf_hookfn*)FWHook;
-    forwardHookOps->hooknum = NF_INET_PRE_ROUTING;
-    forwardHookOps->pf = PF_INET;
-    forwardHookOps->priority = NF_IP_PRI_FIRST;
+    preRoutHookOps->hook = (nf_hookfn*)FWPreRoutHook;
+    preRoutHookOps->hooknum = NF_INET_PRE_ROUTING;
+    preRoutHookOps->pf = PF_INET;
+    preRoutHookOps->priority = NF_IP_PRI_FIRST;
 
-    if (nf_register_net_hook(&init_net, forwardHookOps) != 0)
+    if (nf_register_net_hook(&init_net, preRoutHookOps) != 0)
     {
         printk(KERN_ERR "Failed to init module: forward hook_ops init failed.");
-        kfree(forwardHookOps);
+        kfree(preRoutHookOps);
+        FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
+        FreeRuleManager(ruleManager);
+        return -1;
+    }
+
+    localOutHookOps = (struct nf_hook_ops*)kcalloc(1, sizeof(struct nf_hook_ops), GFP_KERNEL);
+    if (localOutHookOps == NULL)
+    {
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
+        FreeLogger(logger);
+        FreeConnectionManager(connectionManager);
+        FreeRuleManager(ruleManager);
+        printk(KERN_ERR "Failed to init module: Memory allocation failed.");
+        return -1;
+    }
+
+    localOutHookOps->hook = (nf_hookfn*)FWLocalOutHook;
+    localOutHookOps->hooknum = NF_INET_LOCAL_OUT;
+    localOutHookOps->pf = PF_INET;
+    localOutHookOps->priority = NF_IP_PRI_FIRST;
+
+    if (nf_register_net_hook(&init_net, localOutHookOps) != 0)
+    {
+        printk(KERN_ERR "Failed to init module: forward hook_ops init failed.");
+        kfree(localOutHookOps);
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
@@ -177,8 +213,10 @@ static int __init init(void)
     if (major < 0)
     {
         printk(KERN_ERR "Failed to init module: register_chrdev failed.");
-        nf_unregister_net_hook(&init_net, forwardHookOps);
-        kfree(forwardHookOps);
+        nf_unregister_net_hook(&init_net, localOutHookOps);
+        kfree(localOutHookOps);
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
@@ -191,8 +229,10 @@ static int __init init(void)
     {
         printk(KERN_ERR "Failed to init module: class_create failed.");
         unregister_chrdev(major, DEVICE_NAME_LOG_READ);
-        nf_unregister_net_hook(&init_net, forwardHookOps);
-        kfree(forwardHookOps);
+        nf_unregister_net_hook(&init_net, localOutHookOps);
+        kfree(localOutHookOps);
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
@@ -206,8 +246,10 @@ static int __init init(void)
         printk(KERN_ERR "Failed to init module: device_create failed.");
         class_destroy(sysfsClass);
         unregister_chrdev(major, DEVICE_NAME_LOG_READ);
-        nf_unregister_net_hook(&init_net, forwardHookOps);
-        kfree(forwardHookOps);
+        nf_unregister_net_hook(&init_net, localOutHookOps);
+        kfree(localOutHookOps);
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
@@ -221,8 +263,10 @@ static int __init init(void)
         device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
         class_destroy(sysfsClass);
         unregister_chrdev(major, DEVICE_NAME_LOG_READ);
-        nf_unregister_net_hook(&init_net, forwardHookOps);
-        kfree(forwardHookOps);
+        nf_unregister_net_hook(&init_net, localOutHookOps);
+        kfree(localOutHookOps);
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
@@ -237,8 +281,10 @@ static int __init init(void)
         device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
         class_destroy(sysfsClass);
         unregister_chrdev(major, DEVICE_NAME_LOG_READ);
-        nf_unregister_net_hook(&init_net, forwardHookOps);
-        kfree(forwardHookOps);
+        nf_unregister_net_hook(&init_net, localOutHookOps);
+        kfree(localOutHookOps);
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
@@ -254,8 +300,10 @@ static int __init init(void)
         device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
         class_destroy(sysfsClass);
         unregister_chrdev(major, DEVICE_NAME_LOG_READ);
-        nf_unregister_net_hook(&init_net, forwardHookOps);
-        kfree(forwardHookOps);
+        nf_unregister_net_hook(&init_net, localOutHookOps);
+        kfree(localOutHookOps);
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
@@ -272,8 +320,10 @@ static int __init init(void)
         device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
         class_destroy(sysfsClass);
         unregister_chrdev(major, DEVICE_NAME_LOG_READ);
-        nf_unregister_net_hook(&init_net, forwardHookOps);
-        kfree(forwardHookOps);
+        nf_unregister_net_hook(&init_net, localOutHookOps);
+        kfree(localOutHookOps);
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
@@ -291,8 +341,10 @@ static int __init init(void)
         device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
         class_destroy(sysfsClass);
         unregister_chrdev(major, DEVICE_NAME_LOG_READ);
-        nf_unregister_net_hook(&init_net, forwardHookOps);
-        kfree(forwardHookOps);
+        nf_unregister_net_hook(&init_net, localOutHookOps);
+        kfree(localOutHookOps);
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
@@ -310,8 +362,10 @@ static int __init init(void)
         device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
         class_destroy(sysfsClass);
         unregister_chrdev(major, DEVICE_NAME_LOG_READ);
-        nf_unregister_net_hook(&init_net, forwardHookOps);
-        kfree(forwardHookOps);
+        nf_unregister_net_hook(&init_net, localOutHookOps);
+        kfree(localOutHookOps);
+        nf_unregister_net_hook(&init_net, preRoutHookOps);
+        kfree(preRoutHookOps);
         FreeLogger(logger);
         FreeConnectionManager(connectionManager);
         FreeRuleManager(ruleManager);
@@ -332,8 +386,10 @@ static void __exit cleanup(void)
     device_destroy(sysfsClass, MKDEV(major, MINOR_LOG_READ));
     class_destroy(sysfsClass);
     unregister_chrdev(major, DEVICE_NAME_LOG_READ);
-    nf_unregister_net_hook(&init_net, forwardHookOps);
-    kfree(forwardHookOps);
+    nf_unregister_net_hook(&init_net, localOutHookOps);
+    kfree(localOutHookOps);
+    nf_unregister_net_hook(&init_net, preRoutHookOps);
+    kfree(preRoutHookOps);
     FreeLogger(logger);
     FreeConnectionManager(connectionManager);
     FreeRuleManager(ruleManager);

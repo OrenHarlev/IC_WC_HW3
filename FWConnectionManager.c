@@ -505,7 +505,7 @@ bool MatchClient(__be32 cIp, __be16 cPort, connection_t connection)
     return connection.cIp == cIp && connection.cPort == cPort;
 }
 
-bool MatchServer(__be32 sIp, __be16 sPort, __be deepInspectionPort, ConnectionRecord *connectionRecord)
+bool MatchServer(__be32 sIp, __be16 sPort, __be16 deepInspectionPort, ConnectionRecord *connectionRecord)
 {
     return connectionRecord->connection.sIp == sIp &&
            connectionRecord->connection.sPort == sPort &&
