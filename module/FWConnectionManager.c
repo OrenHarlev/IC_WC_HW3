@@ -410,7 +410,6 @@ bool MatchAndUpdateStateCloseWait(state_t *state, packet_t packet, state_t *othe
     return false;
 }
 
-// todo change to use connectionRecord
 bool MatchAndUpdateState(state_t *state, packet_t packet, state_t *otherState)
 {
     switch (*state)
