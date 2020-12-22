@@ -102,22 +102,24 @@ bool MatchClientPacketToConnection(packet_t packet, connection_t connection)
            packet.dst_port == connection.sPort;
 }
 
-bool MatchServerPacketToConnection(packet_t packet, connection_t connection)
+bool MatchServerPacketToConnection(packet_t packet, connection_t connection, __be16 deepInspectionPort)
 {
+    __be16 cPort = deepInspectionPort == 0 ? connection.cPort : deepInspectionPort;
+
     return packet.src_ip == connection.sIp     &&
            packet.dst_ip == connection.cIp     &&
            packet.src_port == connection.sPort &&
-           packet.dst_port == connection.cPort;
+           packet.dst_port == cPort;
 }
 
-bool MatchPacketToConnection(packet_t packet, connection_t connection, bool *isClient)
+bool MatchPacketToConnection(packet_t packet, connection_t connection, __be16 deepInspectionPort, bool *isClient)
 {
     if (MatchClientPacketToConnection(packet, connection))
     {
         *isClient = true;
         return true;
     }
-    if (MatchServerPacketToConnection(packet, connection))
+    if (MatchServerPacketToConnection(packet, connection, deepInspectionPort))
     {
         *isClient = false;
         return true;
@@ -276,9 +278,9 @@ bool MatchAndUpdateStateSynRsvd(state_t *state, packet_t packet, state_t *otherS
         printk(KERN_ERR "Invalid state. expected state SYN_RCVD.\n");
         return false;
     }
-    if ((*otherState) != SYN_SENT && (*otherState) != ESTABLISHED && !IsDeepInspectionPort(packet.src_port))
+    if ((*otherState) != SYN_SENT && (*otherState) != ESTABLISHED && (*otherState) != FIN_WAIT && !IsDeepInspectionPort(packet.src_port))
     {
-        printk(KERN_ERR "Invalid state. server can be in SYN_RCVD state only when client in SYN_SENT or ESTABLISHED.\n");
+        printk(KERN_ERR "Invalid state. server can be in SYN_RCVD state only when client in SYN_SENT or ESTABLISHED or FIN_WAIT.\n");
         *state = CLOSED;
         *otherState = CLOSED;
         return false;
@@ -289,7 +291,7 @@ bool MatchAndUpdateStateSynRsvd(state_t *state, packet_t packet, state_t *otherS
         return true;
     }
     // connection established
-    if ((*otherState == ESTABLISHED || IsDeepInspectionPort(packet.src_port))&& !packet.syn && !packet.fin)
+    if (!packet.syn && !packet.fin)
     {
         *state = ESTABLISHED;
         return true;
@@ -533,7 +535,7 @@ bool GetConnection(ConnectionManager connectionManager, bool isFromServer, __be3
         // check if packet match to the connection
         bool isMatch = isFromServer ?
                 MatchServer(ip, port, deepInspectionPort, connectionRecord) :
-                MatchClient(ip, deepInspectionPort, connectionRecord->connection);
+                MatchClient(ip, port, connectionRecord->connection);
 
         if (isMatch)
         {
@@ -544,7 +546,7 @@ bool GetConnection(ConnectionManager connectionManager, bool isFromServer, __be3
     }
 
     klist_iter_exit(&iterator);
-    return NULL;
+    return result;
 }
 
 bool GetConnectionFromClient(ConnectionManager connectionManager, __be32 cIp, __be16 cPort, connection_t *connection)

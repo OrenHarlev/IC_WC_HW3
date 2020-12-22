@@ -1,7 +1,22 @@
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 from socket import gethostname
+import socket
 import os
+import ipaddress
+from contextlib import closing
+
+class IpUtils():
+    def string_to_num(ip):
+        return int(ipaddress.ip_address(ip))
+
+class PortFinder():
+    def find_free_port():
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+            s.bind(('', 0))
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            return s.getsockname()[1]
+
 
 class FakeSocket():
     def __init__(self, response_str):

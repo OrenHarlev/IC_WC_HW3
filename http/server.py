@@ -1,13 +1,35 @@
 import asyncio
 
 from client import EmulatedClient
-from utils import HTTPRequest, color, FakeSocket
+from utils import HTTPRequest, color, FakeSocket, PortFinder, IpUtils
 from http.client import HTTPResponse
 from io import BytesIO
 
+CONN_FILE = "/sys/class/fw/conns/conns"
 FORBIDDEN_TYPES = ["text/csv", "application/zip"]
 
 class HTTP(asyncio.Protocol):
+
+    def line_match_client_address(self, client_address, line):
+        return client_address[0] == line[1] and client_address[1] == int(line[3])
+
+    def get_server_ip(self):
+        with open(CONN_FILE, 'r') as f:
+            conn_table = f.read().splitlines()
+        for line in conn_table:
+            line = line.split()
+            print(line)
+            print(self.transport.get_extra_info("peername"))
+            if self.line_match_client_address(self.transport.get_extra_info("peername"), line):
+                return line[2]
+
+    def update_port_y(self, src_ip, dst_ip, src_port, dst_port, port_y):
+        src_ip = IpUtils.string_to_num(src_ip)
+        dst_ip = IpUtils.string_to_num(dst_ip)
+        with open(CONN_FILE, 'w') as f:
+            print("{} {} {} {} {}".format(src_ip, dst_ip, src_port, dst_port, port_y))
+            f.write("{} {} {} {} {}".format(src_ip, dst_ip, src_port, dst_port, port_y))
+
 
     def should_filter_out_reply(self, reply):
         response = HTTPResponse(FakeSocket(reply))
@@ -25,10 +47,16 @@ class HTTP(asyncio.Protocol):
         # Creates emulated client.
         emulated_client = EmulatedClient()
 
+        port_y = PortFinder.find_free_port()
+        server_ip = self.get_server_ip()
+        client_ip, client_port = self.transport.get_extra_info("peername")
+        self.update_port_y(client_ip, server_ip, client_port, 80, port_y)
+
+
         # Printing prompt.
         print(color.yellow("\nSENDING DATA:\n"))
 
-        emulated_client.sock_connect(data)
+        emulated_client.sock_connect(port_y, server_ip, data)
 
         # Prints the data.
         print(data)

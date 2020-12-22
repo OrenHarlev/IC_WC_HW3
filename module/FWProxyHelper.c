@@ -67,17 +67,20 @@ int TamperPacket(struct sk_buff *skb, __be32 srcIp, __be32 dstIp, __be16 srcPort
 
 int RedirectPreRoutPacket(struct sk_buff *skb, packet_t packet)
 {
+    __be32 localIp = htonl(in_aton(LOCAL_IP));
     if (packet.dst_port == PORT_HTTP)
     {
-        return TamperPacket(skb, 0, htonl(in_aton(LOCAL_IP)), 0, PORT_HTTP_PROXY);
+        return TamperPacket(skb, 0, localIp, 0, PORT_HTTP_PROXY);
     }
-    else if (packet.dst_port == PORT_FTP_CONTROL)
+    if (packet.dst_port == PORT_FTP_CONTROL)
     {
-        return TamperPacket(skb, 0, htonl(in_aton(LOCAL_IP)), 0, PORT_FTP_PROXY);
+        return TamperPacket(skb, 0, localIp, 0, PORT_FTP_PROXY);
     }
-    else if (packet.src_port == PORT_HTTP || packet.src_port == PORT_FTP_CONTROL)
+
+    localIp = packet.direction == DIRECTION_IN ? htonl(in_aton(OUT_NET_DEVICE_IP)) : htonl(in_aton(IN_NET_DEVICE_IP));
+    if (packet.src_port == PORT_HTTP || packet.src_port == PORT_FTP_CONTROL)
     {
-        return TamperPacket(skb, 0, htonl(in_aton(LOCAL_IP)), 0, 0);
+        return TamperPacket(skb, 0, localIp, 0, 0);
     }
     return 0;
 }
@@ -86,7 +89,11 @@ int RedirectLocalOutPacket(struct sk_buff *skb, ConnectionManager connectionMana
 {
     packet_t packet;
     bool isLoopBack, isXmas;
-    ParsePacket(skb, NULL, &packet, &isLoopBack, &isXmas);
+
+    if (ParsePacket(skb, NULL, &packet, &isLoopBack, &isXmas) != 0)
+    {
+        return 0;
+    }
 
     connection_t connection;
     if (packet.src_port == PORT_HTTP_PROXY || packet.src_port == PORT_FTP_PROXY)

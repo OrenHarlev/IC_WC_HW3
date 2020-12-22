@@ -8,8 +8,10 @@ class EmulatedClient(object):
         socket.setdefaulttimeout(timeout)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def sock_connect(self, data):
-        self.server_address = (HTTPRequest(data).headers["HOST"], 80)
+    def sock_connect(self, source_port, server_ip, data):
+        self.server_address = (server_ip, 80)
+        self.sock.bind(('', source_port))
+        print(self.server_address)
         self.sock.connect(self.server_address)
 
     def sock_send(self, data):

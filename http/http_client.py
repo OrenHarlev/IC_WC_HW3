@@ -82,7 +82,7 @@ if __name__ == "__main__":
     #    server_thread.daemon = True
     #    server_thread.start()
     #    print("Server loop running in thread:", server_thread.name)
-    test_client("127.0.0.1", 804, b'GET / HTTP/1.1\r\nHost:www.google.com\r\n\r\n')
+    test_client("127.0.0.1", 800, b'GET / HTTP/1.1\r\nHost:www.google.com\r\n\r\n')
 #    time.sleep(5)
 #    tcp_server.shutdown()
 #    tcp_server.server_close()
