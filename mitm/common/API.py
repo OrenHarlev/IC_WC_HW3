@@ -1,10 +1,10 @@
 """ Man in the middle API module.
-This module is intended to make it easy to start an mitm server.
+    This module is intended to make it easy to start an mitm server.
 """
 
 import asyncio
 
-from utils import color
+from .utils import color
 
 
 class ManInTheMiddle(object):
