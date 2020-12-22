@@ -1,7 +1,9 @@
 import asyncio
 
-from client import EmulatedClient
-from utils import HTTPRequest, color, FakeSocket, PortFinder, IpUtils
+from common.client import EmulatedClient
+from common.utils import HTTPRequest, color, FakeSocket, PortFinder, IpUtils
+from common.API import ManInTheMiddle
+
 from http.client import HTTPResponse
 from io import BytesIO
 
@@ -57,7 +59,7 @@ class HTTP(asyncio.Protocol):
         # Printing prompt.
         print(color.yellow("\nSENDING DATA:\n"))
 
-        emulated_client.sock_connect(port_y, server_ip, data)
+        emulated_client.sock_connect(port_y, server_ip, 80)
 
         # Prints the data.
         print(data)
@@ -66,7 +68,7 @@ class HTTP(asyncio.Protocol):
         emulated_client.sock_send(data)
 
         # Recives the reply and responds back to client.
-        reply = emulated_client.sock_receive()
+        reply = emulated_client.sock_receive(True)
 
         # Printing the reply back to console.
         print(color.yellow("\nSERVER REPLY:\n"))
@@ -110,3 +112,7 @@ class Interceptor(asyncio.Protocol):
         # Receives standard, non-encrypted data from the client (TLS/SSL is off).
         self.HTTP.connection_made(self.transport)
         self.HTTP.data_received(data)
+
+
+
+ManInTheMiddle(host="10.0.2.15", port=800).run(lambda: Interceptor())

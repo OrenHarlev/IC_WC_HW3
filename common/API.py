@@ -1,26 +1,38 @@
+""" Man in the middle API module.
+This module is intended to make it easy to start an mitm server.
+"""
+
 import asyncio
 
 from utils import color
-from server import Interceptor
 
 
 class ManInTheMiddle(object):
+
+    """
+        Attributes:
+            host (str): Host's IP.
+            port (int): Host's port.
+            loop (asyncio.loop): Current asyncio loop.
+            server (asyncio.Server): Mitm server.
+    """
+
     def __init__(self, host="127.0.0.1", port=8888):
         self.host = host
         self.port = port
 
-    def run(self):
+    def run(self, server_factory):
         # Gets the current event loop (or creates one).
         self.loop = asyncio.get_event_loop()
 
-        self.loop.create_task(self.start())
+        self.loop.create_task(self.start(server_factory))
 
         self.loop.run_forever()
 
-    async def start(self):
+    async def start(self, server_factory):
         # Creates the server instance.
         self.server = await self.loop.create_server(
-            lambda: Interceptor(), host=self.host, port=self.port
+            server_factory, host=self.host, port=self.port
         )
 
         # Prints information about the server.
