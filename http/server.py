@@ -41,6 +41,7 @@ class HTTP(asyncio.Protocol):
         return False
 
     def connection_made(self, transport):
+        print ("connection made")
         self.transport = transport
 
     def data_received(self, data):

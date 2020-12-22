@@ -82,13 +82,11 @@ int ParsePacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, pa
         *isLoopBack = false;
         if (ParseDirection(state, parsedPacket, isLoopBack) != 0)
         {
-            printk(KERN_INFO "FW Unsupported interface.\n");
             return -1;
         }
 
         if (*isLoopBack)
         {
-            printk(KERN_INFO "Loop back packet.\n");
             return -1;
         }
     }
@@ -102,7 +100,6 @@ int ParsePacket(struct sk_buff *rawPacket, const struct nf_hook_state *state, pa
     if (IsLoopBackIp(parsedPacket->dst_ip))
     {
         *isLoopBack = true;
-        printk(KERN_INFO "Loop back packet.\n");
         return -1;
     }
 

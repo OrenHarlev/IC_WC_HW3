@@ -145,7 +145,7 @@ ConnectionRecord* FindConnection(ConnectionManager connectionManager, packet_t p
         }
 
         // check if packet match to the connection
-        if (MatchPacketToConnection(packet, connectionRecord->connection, isClient))
+        if (MatchPacketToConnection(packet, connectionRecord->connection, connectionRecord->deepInspectionPort, isClient))
         {
             klist_iter_exit(&iterator);
             return connectionRecord;

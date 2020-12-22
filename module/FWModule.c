@@ -101,8 +101,8 @@ static unsigned int FWPreRoutHook(void *priv, struct sk_buff *skb, const struct 
 
 static unsigned int FWLocalOutHook(void *priv, struct sk_buff *skb, const struct nf_hook_state *state)
 {
-    // todo handle error and print if redirected
-    return RedirectLocalOutPacket(skb, connectionManager);
+    RedirectLocalOutPacket(skb, connectionManager);
+    return NF_ACCEPT;
 }
 
 //------------------------sysfs api--------------------------------
