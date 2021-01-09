@@ -66,7 +66,7 @@ class HTTP(asyncio.Protocol):
         # Printing prompt.
         print(color.yellow("\nSENDING DATA:\n"))
 
-        emulated_client.sock_connect(port_y, server_ip, 80)
+        emulated_client.sock_connect(local_port, server_ip, 80)
 
         # Prints the data.
         print(data)

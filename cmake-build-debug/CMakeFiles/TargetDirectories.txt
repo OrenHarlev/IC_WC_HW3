@@ -1,3 +1,0 @@
-/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/CMakeFiles/fw.h.dir
-/home/student/CLionProjects/IC_WC_HW4/cmake-build-debug/CMakeFiles/edit_cache.dir

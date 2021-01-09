@@ -5,7 +5,6 @@ from http.client import HTTPResponse
 from common.utils import color, get_available_port, update_connection, get_server_ip_from_client
 from common.client import EmulatedClient
 from common.API import ManInTheMiddle
-from common.interseptor import Interceptor
 
 IP_NUM_REGEX = r"([0-9][0-9]?[0-9]?)"
 PORT_ARG_REGEX = r"(" + IP_NUM_REGEX + ",){5}" + r"(" + IP_NUM_REGEX + ")"
@@ -31,12 +30,12 @@ class FTP(asyncio.Protocol):
         # Updating fw connection table
         server_ip = get_server_ip_from_client(self.transport.get_extra_info("peername"))
         print(color.yellow("connection with {}{}\n".format(server_ip, 21)))
-        port_y = get_available_port()
+        local_port = get_available_port()
         client_ip, client_port = self.transport.get_extra_info("peername")
-        update_connection(client_ip, server_ip, client_port, 21, port_y)
+        update_connection(client_ip, server_ip, client_port, 21, local_port)
 
         # getting and printing the first response
-        self.emulated_client.sock_connect(port_y, server_ip, 21)
+        self.emulated_client.sock_connect(local_port, server_ip, 21)
         response = self.emulated_client.sock_receive(False)
         print(color.yellow("Answersing: {}\n".format(response.decode('ascii'))))
         self.transport.write(response)
@@ -97,4 +96,25 @@ class FTP(asyncio.Protocol):
 
 
 
-ManInTheMiddle(host="10.0.2.15", port=210).run(lambda: Interceptor(FTP()))
+class Interceptor(asyncio.Protocol):
+    def __init__(self):
+        # Initiating our HTTP/HTTPS protocols.
+        self.FTP = FTP()
+
+    def connection_made(self, transport):
+        # Setting our transport object.
+        self.transport = transport
+
+        # Getting the client address and port number.
+        address, port = self.transport.get_extra_info("peername")
+
+        # Prints opening client information.
+        print(color.blue("CONNECTING WITH {}:{}".format(address, port)))
+        self.FTP.connection_made(self.transport)
+
+    # Called when a connected client sends data to the server.
+    def data_received(self, data):
+        self.FTP.data_received(data)
+
+
+ManInTheMiddle(host="10.0.2.15", port=210).run(lambda: Interceptor())
