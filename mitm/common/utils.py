@@ -9,10 +9,12 @@ import socket
 import os
 import ipaddress
 from contextlib import closing
+from guesslang import Guess, GuesslangError
 
 
 FW_CONN_PATH = "/sys/class/fw/conns/conns"
-
+C_SIMILAR_LANG = ["C", "C++", "Java", "Objective-C"]
+SOURCE_CODE_MIN_LEN = 50
 
 class HTTPRequest(BaseHTTPRequestHandler):
     """ Parses HTTP/HTTPS requests for easy interpolation.
@@ -95,3 +97,17 @@ def get_server_ip_from_client(client_addr):
         line = line.split()
         if client_addr[0] == line[1] and client_addr[1] == int(line[3]):
             return line[2]
+
+
+def is_source_code(data):
+    if len(data) < SOURCE_CODE_MIN_LEN:
+        return False
+    try:
+        guess = Guess()
+        lang = guess.language_name(data)
+        for l in C_SIMILAR_LANG:
+            if lang == l:
+                return True
+        return False
+    except GuesslangError as e:
+        print(color.red(e))

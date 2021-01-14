@@ -3,8 +3,6 @@
     server. Interceptor, HTTP are defined as 'asyncio.Protocol' objects.
     MITM works in the following steps:
         1. Client request is intercepted by the Interceptor protocol.
-        2. The Interceptor decides whether the client request is a HTTP or HTTPS,
-            sending it to the correct protocol (via the transporter object).
         3. The HTTP protocol receives the clients data, and creates an
             EmulatedClient to send the information to the designated server.
         4. The HTTP protocol then replies back to the client via the
@@ -13,7 +11,7 @@
 
 import asyncio
 from common.client import EmulatedClient
-from common.utils import HTTPRequest, color, get_available_port, update_connection, get_server_ip_from_client
+from common.utils import HTTPRequest, color, get_available_port, update_connection, get_server_ip_from_client, is_source_code
 from common.API import ManInTheMiddle
 from common.interseptor import Interceptor
 from http.client import HTTPResponse
@@ -23,13 +21,16 @@ from io import BytesIO
 TYPES_TO_FILTER = ["text/csv", "application/zip"]
 
 
-def should_drop_response(reply):
-    response = HTTPResponse(FakeSocket(reply))
+def should_drop_response(response):
+    response = HTTPResponse(FakeSocket(response))
     response.begin()
     content_type = response.getheader('Content-Type')
     for forbidden_type in TYPES_TO_FILTER:
         if forbidden_type in content_type:
             return True
+    data = response.read()
+    if is_source_code(data):
+        return True
     return False
 
 
@@ -87,9 +88,9 @@ class HTTP(asyncio.Protocol):
             emulated_client.sock_close()
             # Closing connection with the client.
             self.close()
-
-        # Sending the response to the user
-        self.transport.write(reply)
+        else:
+            # Sending the response to the user
+            self.transport.write(reply)
         return
 
 

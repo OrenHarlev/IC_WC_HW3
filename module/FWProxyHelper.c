@@ -68,17 +68,18 @@ int TamperPacket(struct sk_buff *skb, __be32 srcIp, __be32 dstIp, __be16 srcPort
 int RedirectPreRoutPacket(struct sk_buff *skb, packet_t packet)
 {
     __be32 localIp = htonl(in_aton(LOCAL_IP));
-    if (packet.dst_port == PORT_HTTP)
+    switch (packet.dst_port)
     {
-        return TamperPacket(skb, 0, localIp, 0, PORT_HTTP_PROXY);
-    }
-    if (packet.dst_port == PORT_FTP_CONTROL)
-    {
-        return TamperPacket(skb, 0, localIp, 0, PORT_FTP_PROXY);
+        case PORT_HTTP:
+            return TamperPacket(skb, 0, localIp, 0, PORT_HTTP_PROXY);
+        case PORT_FTP_CONTROL:
+            return TamperPacket(skb, 0, localIp, 0, PORT_FTP_PROXY);
+        case PORT_SMTP:
+            return TamperPacket(skb, 0, localIp, 0, PORT_SMTP_PROXY);
     }
 
     localIp = packet.direction == DIRECTION_IN ? htonl(in_aton(OUT_NET_DEVICE_IP)) : htonl(in_aton(IN_NET_DEVICE_IP));
-    if (packet.src_port == PORT_HTTP || packet.src_port == PORT_FTP_CONTROL)
+    if (packet.src_port == PORT_HTTP || packet.src_port == PORT_FTP_CONTROL || packet.src_port == PORT_SMTP)
     {
         return TamperPacket(skb, 0, localIp, 0, 0);
     }
@@ -96,7 +97,7 @@ int RedirectLocalOutPacket(struct sk_buff *skb, ConnectionManager connectionMana
     }
 
     connection_t connection;
-    if (packet.src_port == PORT_HTTP_PROXY || packet.src_port == PORT_FTP_PROXY)
+    if (packet.src_port == PORT_HTTP_PROXY || packet.src_port == PORT_FTP_PROXY || packet.src_port == PORT_SMTP_PROXY)
     {
         if (GetConnectionFromClient(connectionManager, packet.dst_ip, packet.dst_port, &connection))
         {
@@ -104,7 +105,7 @@ int RedirectLocalOutPacket(struct sk_buff *skb, ConnectionManager connectionMana
         }
         return 0;
     }
-    else if (packet.dst_port == PORT_HTTP || packet.dst_port == PORT_FTP_CONTROL)
+    else if (packet.dst_port == PORT_HTTP || packet.dst_port == PORT_FTP_CONTROL || packet.dst_port == PORT_SMTP)
     {
         if (GetConnectionFromServer(connectionManager, packet.dst_ip, packet.dst_port, packet.src_port, &connection))
         {

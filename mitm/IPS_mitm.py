@@ -1,21 +1,13 @@
+
 import asyncio
-import re
 
 from common.utils import color, get_available_port, update_connection, get_server_ip_from_client
 from common.client import EmulatedClient
 from common.API import ManInTheMiddle
 
-IP_NUM_REGEX = r"([0-9][0-9]?[0-9]?)"
-PORT_ARG_REGEX = r"(" + IP_NUM_REGEX + ",){5}" + r"(" + IP_NUM_REGEX + ")"
-PORT_REQ_REGEX = r"^PORT " + PORT_ARG_REGEX + r"\r\n$"
-ARG_FROM_REQ_REGEX = PORT_ARG_REGEX + r"\r\n"
+FOUR_LETTERS_CMD = ["conf", "cons", "crst", "dirs", "dump", "envi", "gtmk", "ruok", "stmk", "srvr", "srst", "stat", "wchc", "wchp", "wchs", "mntr", "isro", "hash"]
 
-
-class FTP(asyncio.Protocol):
-    def __init__(self):
-        self.port_req_regex = re.compile(PORT_REQ_REGEX)
-        self.port_arg_regex = re.compile(ARG_FROM_REQ_REGEX)
-        self.expect_extra_response = False
+class IPS(asyncio.Protocol):
 
     def connection_made(self, transport):
         self.transport = transport

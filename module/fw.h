@@ -60,6 +60,8 @@ typedef enum {
 #define PORT_HTTP        (80)
 #define PORT_HTTP_PROXY  (800)
 #define PORT_FTP_PROXY   (210)
+#define PORT_SMTP        (25)
+#define PORT_SMTP_PROXY  (250)
 
 
 // device minor numbers, for your convenience
