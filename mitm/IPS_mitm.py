@@ -7,12 +7,13 @@ from common.interseptor import SingleExchangeInterceptor
 
 ZOOKEPPER_PORT = 2181
 ZOOKEPPER_PROXY_PORT = 21810
+
 FOUR_LETTERS_CMD = ["conf", "cons", "crst", "dirs", "dump", "envi", "gtmk", "ruok", "stmk", "srvr", "srst", "stat", "wchc", "wchp", "wchs", "mntr", "isro", "hash"]
 
 
 def should_drop_request(request):
     for cmd in FOUR_LETTERS_CMD:
-        if cmd in str(request):
+        if cmd == str(request):
             return True
     return False
 
