@@ -1,3 +1,4 @@
+
 import asyncio
 import re
 
@@ -6,6 +7,10 @@ from common.client import EmulatedClient
 from common.API import ManInTheMiddle
 from common.interseptor import Interceptor
 
+
+FTP_PORT = 21
+FTP_DATA_PORT = 20
+FTP_PROXY_PORT = 210
 
 IP_NUM_REGEX = r"([0-9][0-9]?[0-9]?)"
 PORT_ARG_REGEX = r"(" + IP_NUM_REGEX + ",){5}" + r"(" + IP_NUM_REGEX + ")"
@@ -27,13 +32,13 @@ class FTP(asyncio.Protocol):
 
         # Updating fw connection table
         server_ip = get_server_ip_from_client(self.transport.get_extra_info("peername"))
-        print(color.yellow("connection with {}{}\n".format(server_ip, 21)))
+        print(color.yellow("connection with {}{}\n".format(server_ip, FTP_PORT)))
         local_port = get_available_port()
         client_ip, client_port = self.transport.get_extra_info("peername")
-        update_connection(client_ip, server_ip, client_port, 21, local_port)
+        update_connection(client_ip, server_ip, client_port, FTP_PORT, local_port)
 
         # getting and printing the first response
-        self.emulated_client.sock_connect(local_port, server_ip, 21)
+        self.emulated_client.sock_connect(local_port, server_ip, FTP_PORT)
         response = self.emulated_client.sock_receive(False)
         print(color.yellow("Answersing: {}\n".format(response.decode('ascii'))))
         self.transport.write(response)
@@ -56,7 +61,7 @@ class FTP(asyncio.Protocol):
             client_ip = "{}.{}.{}.{}".format(args[0], args[1], args[2], args[3])
             client_port = int(args[4]) * 256 + int(args[5])
             server_ip = get_server_ip_from_client(self.transport.get_extra_info("peername"))
-            update_connection(server_ip, client_ip, 20, client_port, 0)
+            update_connection(server_ip, client_ip, FTP_DATA_PORT, client_port, 0)
 
         # Sends the data to the server.
         self.emulated_client.sock_send(request)
@@ -93,4 +98,4 @@ class FTP(asyncio.Protocol):
         self.transport.close()
 
 
-ManInTheMiddle(host="10.0.2.15", port=210).run(lambda: Interceptor(FTP()))
+ManInTheMiddle(host="10.0.2.15", port=FTP_PROXY_PORT).run(lambda: Interceptor(FTP()))

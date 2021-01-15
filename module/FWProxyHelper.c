@@ -65,6 +65,22 @@ int TamperPacket(struct sk_buff *skb, __be32 srcIp, __be32 dstIp, __be16 srcPort
     return FixChecksum(skb);
 }
 
+bool IsProxyPort(__be16 port)
+{
+    return port == PORT_HTTP_PROXY ||
+           port == PORT_FTP_PROXY  ||
+           port == PORT_SMTP_PROXY ||
+           port == PORT_ZOOKEPPER_PROXY;
+}
+
+bool IsKnownPort(__be16 port)
+{
+    return port == PORT_HTTP        ||
+           port == PORT_FTP_CONTROL ||
+           port == PORT_SMTP        ||
+           port == PORT_ZOOKEPPER;
+}
+
 int RedirectPreRoutPacket(struct sk_buff *skb, packet_t packet)
 {
     __be32 localIp = htonl(in_aton(LOCAL_IP));
@@ -76,10 +92,14 @@ int RedirectPreRoutPacket(struct sk_buff *skb, packet_t packet)
             return TamperPacket(skb, 0, localIp, 0, PORT_FTP_PROXY);
         case PORT_SMTP:
             return TamperPacket(skb, 0, localIp, 0, PORT_SMTP_PROXY);
+        case ZOOKEPPER_PORT:
+            return TamperPacket(skb, 0, localIp, 0, PORT_ZOOKEPPER_PROXY);
+        default:
+            break;
     }
 
     localIp = packet.direction == DIRECTION_IN ? htonl(in_aton(OUT_NET_DEVICE_IP)) : htonl(in_aton(IN_NET_DEVICE_IP));
-    if (packet.src_port == PORT_HTTP || packet.src_port == PORT_FTP_CONTROL || packet.src_port == PORT_SMTP)
+    if (IsKnownPort(packet.src_port))
     {
         return TamperPacket(skb, 0, localIp, 0, 0);
     }
@@ -97,7 +117,7 @@ int RedirectLocalOutPacket(struct sk_buff *skb, ConnectionManager connectionMana
     }
 
     connection_t connection;
-    if (packet.src_port == PORT_HTTP_PROXY || packet.src_port == PORT_FTP_PROXY || packet.src_port == PORT_SMTP_PROXY)
+    if (IsProxyPort(packet.src_port))
     {
         if (GetConnectionFromClient(connectionManager, packet.dst_ip, packet.dst_port, &connection))
         {
@@ -105,7 +125,7 @@ int RedirectLocalOutPacket(struct sk_buff *skb, ConnectionManager connectionMana
         }
         return 0;
     }
-    else if (packet.dst_port == PORT_HTTP || packet.dst_port == PORT_FTP_CONTROL || packet.dst_port == PORT_SMTP)
+    else if (IsKnownPort(packet.dst_port))
     {
         if (GetConnectionFromServer(connectionManager, packet.dst_ip, packet.dst_port, packet.src_port, &connection))
         {

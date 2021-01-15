@@ -62,6 +62,8 @@ typedef enum {
 #define PORT_FTP_PROXY   (210)
 #define PORT_SMTP        (25)
 #define PORT_SMTP_PROXY  (250)
+#define PORT_ZOOKEPPER   (2181)
+#define PORT_ZOOKEPPER_PROXY (21810)
 
 
 // device minor numbers, for your convenience

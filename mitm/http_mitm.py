@@ -18,6 +18,9 @@ from http.client import HTTPResponse
 from io import BytesIO
 
 
+HTTP_PORT = 80
+HTTP_PROXY_PORT = 800
+
 TYPES_TO_FILTER = ["text/csv", "application/zip"]
 
 
@@ -25,7 +28,7 @@ def should_drop_request(request):
     try:
         request = HTTPRequest(request)
         data = request.rfile.read()
-        if is_source_code(data):
+        if is_source_code(str(data)):
             return True
         return False
     except:
@@ -74,12 +77,12 @@ class HTTP(asyncio.Protocol):
         server_ip = get_server_ip_from_client(self.transport.get_extra_info("peername"))
         local_port = get_available_port()
         client_ip, client_port = self.transport.get_extra_info("peername")
-        update_connection(client_ip, server_ip, client_port, 80, local_port)
+        update_connection(client_ip, server_ip, client_port, HTTP_PORT, local_port)
 
         # Printing prompt.
         print(color.yellow("\nSENDING DATA:\n"))
 
-        emulated_client.sock_connect(local_port, server_ip, 80)
+        emulated_client.sock_connect(local_port, server_ip, HTTP_PORT)
 
         # Prints the data.
         print(data)
@@ -121,4 +124,4 @@ class HTTP(asyncio.Protocol):
 
 
 
-ManInTheMiddle(host="10.0.2.15", port=800).run(lambda: SingleExchangeInterceptor(HTTP()))
+ManInTheMiddle(host="10.0.2.15", port=HTTP_PROXY_PORT).run(lambda: SingleExchangeInterceptor(HTTP()))

@@ -6,6 +6,10 @@ from common.API import ManInTheMiddle
 from common.interseptor import Interceptor
 
 
+SMTP_PORT = 25
+SMTP_PROXY_PORT = 250
+
+
 def should_drop_data(data):
     return is_source_code(data)
 
@@ -25,10 +29,10 @@ class SMTP(asyncio.Protocol):
         server_ip = get_server_ip_from_client(self.transport.get_extra_info("peername"))
         local_port = get_available_port()
         client_ip, client_port = self.transport.get_extra_info("peername")
-        update_connection(client_ip, server_ip, client_port, 25, local_port)
+        update_connection(client_ip, server_ip, client_port, SMTP_PORT, local_port)
 
         # getting and printing the first response
-        self.emulated_client.sock_connect(local_port, server_ip, 25)
+        self.emulated_client.sock_connect(local_port, server_ip, SMTP_PORT)
         response = self.emulated_client.sock_receive(False)
         print(color.yellow("Answersing: {}\n".format(response)))
         self.transport.write(response)
@@ -76,4 +80,4 @@ class SMTP(asyncio.Protocol):
 
 
 
-ManInTheMiddle(host="10.0.2.15", port=250).run(lambda: Interceptor(SMTP()))
+ManInTheMiddle(host="10.0.2.15", port=SMTP_PROXY_PORT).run(lambda: Interceptor(SMTP()))
