@@ -4,6 +4,8 @@ import re
 from common.utils import color, get_available_port, update_connection, get_server_ip_from_client
 from common.client import EmulatedClient
 from common.API import ManInTheMiddle
+from common.interseptor import Interceptor
+
 
 IP_NUM_REGEX = r"([0-9][0-9]?[0-9]?)"
 PORT_ARG_REGEX = r"(" + IP_NUM_REGEX + ",){5}" + r"(" + IP_NUM_REGEX + ")"
@@ -91,26 +93,4 @@ class FTP(asyncio.Protocol):
         self.transport.close()
 
 
-
-class Interceptor(asyncio.Protocol):
-    def __init__(self):
-        # Initiating our HTTP/HTTPS protocols.
-        self.FTP = FTP()
-
-    def connection_made(self, transport):
-        # Setting our transport object.
-        self.transport = transport
-
-        # Getting the client address and port number.
-        address, port = self.transport.get_extra_info("peername")
-
-        # Prints opening client information.
-        print(color.blue("CONNECTING WITH {}:{}".format(address, port)))
-        self.FTP.connection_made(self.transport)
-
-    # Called when a connected client sends data to the server.
-    def data_received(self, data):
-        self.FTP.data_received(data)
-
-
-ManInTheMiddle(host="10.0.2.15", port=210).run(lambda: Interceptor())
+ManInTheMiddle(host="10.0.2.15", port=210).run(lambda: Interceptor(FTP()))

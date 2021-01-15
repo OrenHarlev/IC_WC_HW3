@@ -13,12 +13,23 @@ import asyncio
 from common.client import EmulatedClient
 from common.utils import HTTPRequest, color, get_available_port, update_connection, get_server_ip_from_client, is_source_code
 from common.API import ManInTheMiddle
-from common.interseptor import Interceptor
+from common.interseptor import SingleExchangeInterceptor
 from http.client import HTTPResponse
 from io import BytesIO
 
 
 TYPES_TO_FILTER = ["text/csv", "application/zip"]
+
+
+def should_drop_request(request):
+    try:
+        request = HTTPRequest(request)
+        data = request.rfile.read()
+        if is_source_code(data):
+            return True
+        return False
+    except:
+        return False
 
 
 def should_drop_response(response):
@@ -28,6 +39,7 @@ def should_drop_response(response):
     for forbidden_type in TYPES_TO_FILTER:
         if forbidden_type in content_type:
             return True
+
     data = response.read()
     if is_source_code(data):
         return True
@@ -72,6 +84,13 @@ class HTTP(asyncio.Protocol):
         # Prints the data.
         print(data)
 
+        if should_drop_request(data):
+            # Closing the EmulatedClient socket.
+            emulated_client.sock_close()
+            # Closing connection with the client.
+            self.close()
+            return
+
         # Sends the data to the server.
         emulated_client.sock_send(data)
 
@@ -102,4 +121,4 @@ class HTTP(asyncio.Protocol):
 
 
 
-ManInTheMiddle(host="10.0.2.15", port=800).run(lambda: Interceptor(HTTP()))
+ManInTheMiddle(host="10.0.2.15", port=800).run(lambda: SingleExchangeInterceptor(HTTP()))
