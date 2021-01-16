@@ -3,7 +3,6 @@
 #define FW_RULE_MANAGER_H
 
 #include "fw.h"
-#include "FWPacketParser.h"
 
 #define NO_MATCHING_RULE (-1)
 

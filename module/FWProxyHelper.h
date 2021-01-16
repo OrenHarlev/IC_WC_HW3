@@ -3,8 +3,8 @@
 #define FW_PROXY_HELPER_H
 
 #include <linux/skbuff.h>
-#include "FWPacketParser.h"
 #include "FWConnectionManager.h"
+#include "fw.h"
 
 int RedirectPreRoutPacket(struct sk_buff *skb, packet_t packet);
 

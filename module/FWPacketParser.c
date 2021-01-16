@@ -10,6 +10,7 @@
 #include <linux/if.h>
 
 #include "FWPacketParser.h"
+#include "fw.h"
 
 
 void ParseUDP(struct sk_buff *rawPacket, packet_t *parsedPacket)

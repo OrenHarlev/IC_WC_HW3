@@ -117,4 +117,41 @@ typedef struct {
     unsigned int   	count;        	// counts this line's hits
 } log_row_t;
 
+// packet relevant data
+typedef struct {
+    direction_t direction;
+    __be32	src_ip;
+    __be32	dst_ip;
+    __be16	src_port; 			// number of port or 0 for any or port 1023 for any port number > 1023
+    __be16	dst_port; 			// number of port or 0 for any or port 1023 for any port number > 1023
+    __u8	protocol; 			// values from: prot_t
+    ack_t	ack; 				// values from: ack_t
+    bool syn;
+    bool fin;
+} packet_t;
+
+typedef enum
+{
+    LISTEN = 1,
+    SYN_SENT = 2,
+    SYN_RCVD = 3,
+    ESTABLISHED = 4,
+    FIN_WAIT = 5, // this state includes FIN_WAIT_1 and FIN_WAIT_2 since as a gate-way they are logically the same.
+//  FIN_WAIT_2,
+            CLOSE_WAIT = 6,
+//  CLOSING,
+//  TIME_WAIT,
+//  LAST_ACK,
+            CLOSED = 7, // CLOSING, TIME_WAIT, LAST_ACK will be considered as CLOSED since we are not expecting more packets from those states
+} state_t;
+
+typedef struct
+{
+    __be32	cIp;
+    __be32	sIp;
+    __be16	cPort; 			// number of port or 0 for any or port 1023 for any port number > 1023
+    __be16	sPort; 			// number of port or 0 for any or port 1023 for any port number > 1023
+    state_t cState;
+    state_t sState;
+} connection_t;
 #endif
