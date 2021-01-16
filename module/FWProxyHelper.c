@@ -92,7 +92,7 @@ int RedirectPreRoutPacket(struct sk_buff *skb, packet_t packet)
             return TamperPacket(skb, 0, localIp, 0, PORT_FTP_PROXY);
         case PORT_SMTP:
             return TamperPacket(skb, 0, localIp, 0, PORT_SMTP_PROXY);
-        case ZOOKEPPER_PORT:
+        case PORT_ZOOKEPPER:
             return TamperPacket(skb, 0, localIp, 0, PORT_ZOOKEPPER_PROXY);
         default:
             break;

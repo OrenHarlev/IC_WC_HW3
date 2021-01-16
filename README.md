@@ -1,3 +1,9 @@
+in order to run the FW:
+- run 'make' in the module dir
+- run 'sudo insmod firewall.ko'
+- use the user space API to load rules
+- run each of the mitm proxy servers (otherwise the packets that are supposed to be sent to them will be loss)
+
 
 The firewall module is under the module dir and include the following parts:
 - fw : contains all the shred data structs and macros
